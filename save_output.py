@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras import backend as K
 
-model = VGG16(weights='imagenet', include_top=False) # top = camadas fully-connected
+model = VGG16(weights='imagenet', include_top=True) # top = camadas fully-connected
 
 # all_weights = []
 # for layer in model.layers:

@@ -1,5 +1,0 @@
-dataset+layer, kernel, accuracy, standard deviation
-produce-fc1.txt,linear,0.947142857143,0.0935523426555
-produce-fc1.txt,poly,0.952142857143,0.0528571428571
-produce-fc1.txt,sigmoid,0.420714285714,0.00994884876942
-produce-fc1.txt,rbf,0.519285714286,0.0134771159029

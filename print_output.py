@@ -7,7 +7,7 @@ import os
 
 cnn = VGG16(weights='imagenet')
 cnn.summary() # full description of the architecture
-1/0
+# 1/0 # breakpoint
 # for i, layer in enumerate(cnn.layers): # prints the layers names (so you can know how to refer to each one in "get_layer")
 #    print(i, layer.name)
 

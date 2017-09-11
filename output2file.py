@@ -15,7 +15,7 @@ from keras.applications.vgg16 import preprocess_input
 from keras.models import Model
 
 
-def save_data(filename, imgs_names, output_values, imgs_classes):
+def save_data(layer_name, imgs_names, output_values, imgs_classes):
 	'''
 		Saves the following pattern to the given file:
 		<image name> <output values> <image ground truth label>
@@ -35,23 +35,23 @@ def save_data(filename, imgs_names, output_values, imgs_classes):
 	# # <<<<<<<<<<<<
 	concat1 = np.r_['1,2,0', imgs_names, output_values]
 	concat2 = np.r_['1,2,0', concat1, imgs_classes]
-	with open(filename, "ab") as output_file: # append to the end of the file
-		np.savetxt(output_file, concat2, fmt = "%s")
+	with open(layer_name + '.txt', 'ab') as output_file: # append to the end of the file
+		np.savetxt(output_file, concat2, fmt = '%s')
 
-def load_data(filename, separator):
+def load_data(layer_name, separator):
 	'''
 		Reads the following pattern from the given file:
 		<image name> <output values> <image ground truth label>
 		Returns 3 arrays: 'names', 'values' and 'classes'
 	'''
 	data = []
-	with open(filename,'r') as input_file:
+	with open(layer_name +'.txt','r') as input_file:
 		for line in input_file.readlines():
 			data.append(line.replace('\n','').split(separator))
 	data = np.array(data)
 	classes = data[:, -1]
 	names = data[:, 0]
-	values = data[:, 1:-1].astype("float64")
+	values = data[:, 1:-1].astype('float64')
 	return names, values, classes
 
 def batch_preprocessing(dir_name): #'Produce_1400'

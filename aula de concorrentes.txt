@@ -1,0 +1,75 @@
+- Interação:
+	|- Comunicação: 
+	|		|- Implícita
+	|		|- Explícita (1:1, 1:N, 1:N, N:N, Rendezvous):
+	|
+	|- Sincronização(Lógica, não temporal):
+		junto ou separado da comunicação
+|-Resposta (tempo ocioso + tempo de execuç
+
+- Granularidade:
+	|- Grossa: Processos
+	|- Média: Procedimentos/Loops
+	|- Fina: Instruções
+
+
+- Tempos:
+|-Execução: (tempo de uso do processador)
+|	|-Sistema
+|	|-Usuárioão):
+|	|-Sequencial
+|	|-Paralelo
+|-Ocioso
+
+Avaliação de desempenho:
+	Speedup:
+		Absoluto: (compara alg. sequencial e alg. paralelo)
+			SPp = Tseq/Tpar_p (usando P processadores)
+		Relativo: (compara usando o mesmo algoritimo na mesma máquina paralela)
+			SPp = Tpar_1/Tpar_p (usando 1 e P processadores, relativamente)
+
+	Eficiência:
+		Ep = SPp/P
+
+
+Limitações do ganho de desempenho:
+Tseq = W (de workload)
+							v<<< porção do algoritmo paralelizável	
+							v 
+Tpar_p = (alpha * W) + (alpha - 1) * W / P + Tsobrecarga ( ver Lei de Amdral)
+			^										^
+			^<<< porção não-paralelizável			^<<<< idealmente logarítmica em p
+
+
+PS: revisar princípios de localidade (cache blablabla)
+
+Escalabilidade:
+	Capacidade da solução paralela de manter a eficiência contrante quando W e P variar.
+
+
+Modelos:
+	Máquina:
+		- Hardware, SO, Assembly	
+	Arquitetura:
+		- SIMD, MIMD ...
+	Computação: (avaliação de desempenho)
+		- RAM, PRAM, BSP, ...
+	Programação: (visão do programador)
+		- Linguagem de programação
+		- Nível de paralelismo(implícito - feito pelo computador ou explícito - pelo programador)
+		- Especificação das porções paralelizáveis
+		- Distribuição de Tarefas
+
+Modos de execução:
+	SPMD (1 binário sendo executados separadamente com dados diferentes)
+	MPMD (2 binários diferentes tratando dados diferentes)
+
+Padrões de Comunicação:
+	Message Passing(MP)
+	Shared Memory(SM)
+
+Mecanismos de Comunicação:
+
+
+
+

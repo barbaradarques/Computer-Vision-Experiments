@@ -17,7 +17,7 @@ def main1():
 	cnn = VGG16(weights='imagenet')
 	# cnn.summary()
 	# [15:-1] => !!! it will start on the 15th layer because I don't have enough RAM for dealing with the earlier layers !!!
-	layer_names = [layer.name for layer in cnn.layers[1:]] # [15:-1] << excludes the first and last layers(input and predictions)
+	layer_names = [layer.name for layer in cnn.layers[1:-1]] # [15:-1] << excludes the first and last layers(input and predictions)
 	# print(len(layer_names))
 	dataset_name = 'Produce_1400'
 	preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(dataset_name)

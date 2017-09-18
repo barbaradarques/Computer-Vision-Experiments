@@ -13,11 +13,11 @@ def main1():
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-
+	print("aqui")
 	cnn = VGG16(weights='imagenet')
 	# cnn.summary()
 	# [15:-1] => !!! it will start on the 15th layer because I don't have enough RAM for dealing with the earlier layers !!!
-	layer_names = [layer.name for layer in cnn.layers[1:-1]] # [15:-1] << excludes the first and last layers(input and predictions)
+	layer_names = [layer.name for layer in cnn.layers[-8:-1]] # [15:-1] << excludes the first and last layers(input and predictions)
 	# print(len(layer_names))
 	dataset_name = 'Produce_1400'
 	preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(dataset_name)
@@ -66,7 +66,7 @@ def  main3():
 	boxplot.plot_svm_performance(dataset_name, layer_name)
 
 ################################################################################################
-
+print("antes")
 main1()
 
 

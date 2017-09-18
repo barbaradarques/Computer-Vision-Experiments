@@ -15,7 +15,7 @@ from keras.applications.vgg16 import preprocess_input
 from keras.models import Model
 
 
-def save_data(layer_name, imgs_names, output_values, imgs_classes):
+def save_data(filename, imgs_names, output_values, imgs_classes):
 	'''
 		Saves the following pattern to the given file:
 		<image name> <output values> <image ground truth label>
@@ -35,17 +35,17 @@ def save_data(layer_name, imgs_names, output_values, imgs_classes):
 	# # <<<<<<<<<<<<
 	concat1 = np.r_['1,2,0', imgs_names, output_values]
 	concat2 = np.r_['1,2,0', concat1, imgs_classes]
-	with open(layer_name + '.txt', 'ab') as output_file: # append to the end of the file
+	with open(filename, 'ab') as output_file: # append to the end of the file
 		np.savetxt(output_file, concat2, fmt = '%s')
 
-def load_data(layer_name, separator):
+def load_data(filename, separator):
 	'''
 		Reads the following pattern from the given file:
 		<image name> <output values> <image ground truth label>
 		Returns 3 arrays: 'names', 'values' and 'classes'
 	'''
 	data = []
-	with open(layer_name +'.txt','r') as input_file:
+	with open(filename,'r') as input_file:
 		for line in input_file.readlines():
 			data.append(line.replace('\n','').split(separator))
 	data = np.array(data)
@@ -71,7 +71,7 @@ def batch_preprocessing(dir_name): #'Produce_1400'
 			all_imgs.append(img) # note that extend and append are different!
 
 	preprocessed_imgs = preprocess_input(np.array(all_imgs))
-	return preprocessed_imgs, all_imgs_names, all_imgs_classes
+	return preprocessed_imgs[:110], all_imgs_names[:110], all_imgs_classes[:110] # <<<<<
 
 def get_layers_outputs(cnn, layers_names, preprocessed_imgs):
 	layers = [cnn.get_layer(layer_name).output for layer_name in layers_names]

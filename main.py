@@ -16,7 +16,7 @@ def main1():
 	print("aqui")
 	cnn = VGG16(weights='imagenet')
 	# cnn.summary()
-	layer_names = [layer.name for layer in cnn.layers[1:-1]] # << excludes the first and last layers(input and predictions)
+	layer_names = [layer.name for layer in cnn.layers[11:-1]] # << excludes the first and last layers(input and predictions)
 	# print(len(layer_names))
 	dataset_name = 'Produce_1400'
 	preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(dataset_name)

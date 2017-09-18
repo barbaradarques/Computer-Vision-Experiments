@@ -71,7 +71,7 @@ def batch_preprocessing(dir_name): #'Produce_1400'
 			all_imgs.append(img) # note that extend and append are different!
 
 	preprocessed_imgs = preprocess_input(np.array(all_imgs))
-	return preprocessed_imgs[:110], all_imgs_names[:110], all_imgs_classes[:110] # <<<<<
+	return preprocessed_imgs, all_imgs_names, all_imgs_classes
 
 def get_layers_outputs(cnn, layers_names, preprocessed_imgs):
 	layers = [cnn.get_layer(layer_name).output for layer_name in layers_names]

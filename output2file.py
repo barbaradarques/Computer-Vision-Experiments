@@ -29,10 +29,12 @@ def save_data(filename, imgs_names, output_values, imgs_classes):
 
 	# <<<<<<<<<<<<
 	# print(filename[len('outputs/Produce_1400/'):] + ':');
-	# print('output_values shape = ' + str(output_values.shape))
-	# print('imgs_names shape = ' + str(len(imgs_names)))
-
+	print('output_values shape = ' + str(output_values.shape))
+	print('imgs_names shape = ' + str(len(imgs_names)))
+	
 	# # <<<<<<<<<<<<
+	# print('image_names.shape' + len(imgs_names)
+	# print('output_values.shape' + output_values.shape)
 	concat1 = np.r_['1,2,0', imgs_names, output_values]
 	concat2 = np.r_['1,2,0', concat1, imgs_classes]
 	with open(filename, 'ab') as output_file: # append to the end of the file
@@ -54,19 +56,21 @@ def load_data(filename, separator):
 	values = data[:, 1:-1].astype('float64')
 	return names, values, classes
 
-def batch_preprocessing(dir_name): #'Produce_1400'
-	subdirs = next(os.walk(dir_name))[1] # returns all the subdirectories inside Produce_1400
+def batch_preprocessing(datasets_path, dataset_name): #'Produce_1400'
+	print(datasets_path + dataset_name)
+	subdirs = next(os.walk(datasets_path + dataset_name))[1] # returns all the subdirectories inside Produce_1400
+	print(subdirs)
 	all_imgs = []
 	all_imgs_names = []
 	all_imgs_classes = []
 	for subdir in subdirs:
-		imgs_names = [subdir+'/'+img for img in os.listdir('./'+dir_name+'/'+subdir) if img.endswith('.jpg')]
+		imgs_names = [subdir+'/'+img for img in os.listdir(datasets_path + dataset_name +'/'+subdir) if img.endswith('.jpg') or img.endswith('.png')]
 		imgs_classes = np.empty(len(imgs_names), dtype=np.str)
 		imgs_classes.fill(subdir) # as the classes are separated by subdirectories, class name = subdir name
 		all_imgs_classes.extend(imgs_classes) # <<<<<<<<<<<<< 
 		all_imgs_names.extend(imgs_names) # <<<<<<<<<<<<< 
 		for img_name in imgs_names: # <<<<<<<<<<<<< 
-			img = image.load_img('./'+dir_name+'/'+img_name, target_size=(224, 224))
+			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(224, 224))
 			img = image.img_to_array(img)
 			all_imgs.append(img) # note that extend and append are different!
 

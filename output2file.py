@@ -38,9 +38,9 @@ def save_data(filename, imgs_names, output_values, imgs_classes):
 	
 	# deletes file if it already exists
 	try:
-    	os.remove(filename)
+		os.remove(filename)
 	except OSError:
-	    pass
+		pass
 
 	with open(filename, 'ab') as output_file: # append to the end of the file
 		np.savetxt(output_file, concat2, fmt = '%s')

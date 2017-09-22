@@ -29,14 +29,19 @@ def save_data(filename, imgs_names, output_values, imgs_classes):
 
 	# <<<<<<<<<<<<
 	# print(filename[len('outputs/Produce_1400/'):] + ':');
-	print('output_values shape = ' + str(output_values.shape))
-	print('imgs_names shape = ' + str(len(imgs_names)))
-	
+	# print('output_values shape = ' + str(output_values.shape))
+	# print('imgs_names shape = ' + str(len(imgs_names)))
 	# # <<<<<<<<<<<<
-	# print('image_names.shape' + len(imgs_names)
-	# print('output_values.shape' + output_values.shape)
+
 	concat1 = np.r_['1,2,0', imgs_names, output_values]
 	concat2 = np.r_['1,2,0', concat1, imgs_classes]
+	
+	# deletes file if it already exists
+	try:
+    	os.remove(filename)
+	except OSError:
+	    pass
+
 	with open(filename, 'ab') as output_file: # append to the end of the file
 		np.savetxt(output_file, concat2, fmt = '%s')
 
@@ -56,7 +61,7 @@ def load_data(filename, separator):
 	values = data[:, 1:-1].astype('float64')
 	return names, values, classes
 
-def batch_preprocessing(datasets_path, dataset_name): #'Produce_1400'
+def batch_preprocessing(datasets_path, dataset_name): 
 	print(datasets_path + dataset_name)
 	subdirs = next(os.walk(datasets_path + dataset_name))[1] # returns all the subdirectories inside Produce_1400
 	print(subdirs)
@@ -83,18 +88,4 @@ def get_layers_outputs(cnn, layers_names, preprocessed_imgs):
 	return new_model.predict(preprocessed_imgs)
 
 
-######################################################################################
-
-# start_time = time.time()
-# preprocessed_imgs, imgs_names, imgs_classes = batch_preprocessing('Produce_1400')
-
-# cnn = VGG16(weights='imagenet')
-
-# layers_outputs = get_layers_outputs(cnn, ['fc1','fc2'], preprocessed_imgs)
-
-# save_data('produce-fc1.txt', imgs_names, layers_outputs[0], imgs_classes)
-
-# save_data('produce-fc2.txt', imgs_names, layers_outputs[1], imgs_classes)
-	
-# print("\n\n\n\nExecution time: %s seconds.\n\n\n\n" % (time.time() - start_time))
 

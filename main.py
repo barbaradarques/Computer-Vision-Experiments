@@ -12,69 +12,48 @@ import boxplot
 def main1():
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
-
-	print("aqui")
 	cnn = VGG16(weights='imagenet')
-	# cnn.summary()
-	layer_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
-	print(layer_names)
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
 	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
 	datasets_names = ['17flowers', 'coil-20', 'corel-1000',  'CUB_200_2011', 'tropical_fruits1400']
-	preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, datasets_names[1])
 	
-	print('preprocessed_imgs.shape = ', end = '')
-	print(preprocessed_imgs.shape)
-	
+	for dataset_name in datasets_names:
+		preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name)
+		layers_outputs = o2f.get_layers_outputs(cnn, layers_names, preprocessed_imgs) 
 
-	layers_outputs = o2f.get_layers_outputs(cnn, layer_names, preprocessed_imgs) 
-
-	print('len(lay_out) = ', end = '')
-	print(len(layers_outputs))
-	print('layers_outputs[0].shape = ', end = '')
-	print(layers_outputs[0].shape)
-	# print('Predicted:', decode_predictions(layers_outputs, top=5))
-
-	# saves the outputs all the layers, except for the input and prediction layers
-	for i in range(len(layer_names)):
-		o2f.save_data('outputs/' + datasets_names[0] +'/' + layer_names[i] +'.txt',
-			imgs_names, layers_outputs[i], imgs_classes) # [0] <<<<<< generalize later  
-
-
-	# arr = np.arange(36).reshape((3,2,2,3))
-	# print(arr.reshape(3,12))
-
-	# o2f.save_data('teste-fc1.txt', imgs_names[:5], layers_outputs[0], imgs_classes[:5])
-
-	# o2f.save_data('teste-fc2.txt', imgs_names[:5], layers_outputs[1], imgs_classes[:5])
-
-	# names, values, classes = o2f.load_data("teste-fc1.txt", " ")
-
-	# arr = np.array([[[1,2,3],[4,5, 6]],[[7,8,9], [10, 11, 12]]])
-	# arr = np.array([1,2,3])
-	# print(len(arr.shape))
-	# print(arr)
-	# arr = arr.ravel()
-	# print(arr)
+		# saves the outputs all the layers, except for the input and prediction layers
+		for i in range(len(layers_names)):
+			o2f.save_data('outputs/' + dataset_name +'/' + layers_names[i] +'.txt',
+				imgs_names, layers_outputs[i], imgs_classes) # [0] <<<<<< generalize later  
 
 	print("\n\n\n\nExecution time: %s seconds.\n\n\n\n" % (time.time() - start_time))
 
 def main2(): 
 	start_time = time.time()
-
-	layer_output_file = "produce-fc1.txt"
-	#test_linear_SVC_params('Produce_1400', layer_output_file)
-	test_rbf_SVC_params('Produce_1400', layer_output_file, 1)
-	#test_poly_SVC_params('Produce_1400', layer_output_file, 1)
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000',  'CUB_200_2011', 'tropical_fruits1400']
+	for dataset_name in datasets_names:
+		for layer_name in layers_names:
+			test_linear_SVC_params(dataset_name, layer_name)
+			test_rbf_SVC_params(dataset_name, layer_name, 1)
+			test_poly_SVC_params(dataset_name, layer_name, 1)
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))
 
 def  main3():
-	dataset_name = 'Produce_1400'
-	layer_name = 'fc1'
-	boxplot.plot_svm_performance(dataset_name, layer_name)
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000',  'CUB_200_2011', 'tropical_fruits1400']
+	for dataset_name in datasets_names:
+		for layer_name in layers_names:
+			boxplot.plot_svm_performance(dataset_name, layer_name, show = False)
 
 ################################################################################################
-print("antes")
+
+
+print("\n\n\n\nStarting...\n\n\n\n")
+	
 main1()
 
 

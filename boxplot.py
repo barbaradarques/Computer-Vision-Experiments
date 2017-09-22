@@ -7,7 +7,7 @@ from matplotlib.ticker import FormatStrFormatter
 mpl.use('agg') # agg backend is used to create plot as a .png file
 import matplotlib.pyplot as plt 
 
-def plot_svm_performance(dataset_name, layer_name):
+def plot_svm_performance(dataset_name, layer_name, **kwargs):
 	linear_params, linear_data = load_accuracy_file('svm_performance/'+ dataset_name +'/accuracy-linear-'+ layer_name +'.csv', ',')
 	linear_data = linear_data.tolist() # otherwise it reads the wrong axes | another solution: linear_data = np.swapaxes(linear_data, 0, 1)
 
@@ -47,7 +47,9 @@ def plot_svm_performance(dataset_name, layer_name):
 	sp.title.set_text('Using RBF Kernel')
 	# sp.xaxis.set_major_formatter(FormatStrFormatter('%.2e'))
 	fig.tight_layout()
-	plt.show()
+	
+	if 'show' in kwargs and kwargs['show'] == True:
+		plt.show()
 
 	fig.savefig('boxplots/'+dataset_name+'/' + layer_name + '-boxplot.png', bbox_inches='tight')
 

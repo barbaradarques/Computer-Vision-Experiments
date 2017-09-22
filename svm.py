@@ -19,17 +19,17 @@ def load_accuracy_file(filename, separator):
 	return params, acc_vect
 
 def test_linear_SVC_params(dataset_name, layer_name):
-	names, values, classes = o2f.load_data(layer_name, " ")
+	names, values, classes = o2f.load_data('outputs/' + dataset_name +'/' + layer_name +'.txt', " ")
 	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
 
-	with open('svm_performance/'+dataset_name+'/accuracy-linear-'+layer_name+'.csv','w') as file:
+	with open('svm_performance/' + dataset_name + '/accuracy-linear-' + layer_name + '.csv','w') as file:
 		# file.write('# <cost>, <accuracy score vector>\n')
 		for i in range(11):
 			cost = 1 << i # penalty
-			clf = svm.SVC(kernel='linear', C=cost)
-			scores = cross_val_score(clf, values, classes, cv=10)
+			clf = svm.SVC(kernel = 'linear', C = cost)
+			scores = cross_val_score(clf, values, classes, cv = 10)
 			scores_str = ",".join(str(i) for i in scores)
-			file.write(str(cost)+','+scores_str+'\n')
+			file.write(str(cost) + ',' + scores_str + '\n')
 			# ====================================
 		# 	plot_linear(clf, values, classes, False, i)
 		# plt.show() # it's needed once 'show' is set to False in plot_linear <<<<
@@ -88,29 +88,29 @@ def plot_linear(clf, X, Y, show, fignum): # !!! ignore for now !!!
 '''
 
 def test_poly_SVC_params(dataset_name, layer_name, cost):
-	names, values, classes = o2f.load_data(layer_name, " ")
+	names, values, classes = o2f.load_data('outputs/' + dataset_name + '/' + layer_name + '.txt', " ")
 	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
 
-	with open('svm_performance/'+dataset_name+'/accuracy-poly-'+ layer_name +'.csv','w') as file:
+	with open('svm_performance/' + dataset_name + '/accuracy-poly-' + layer_name + '.csv','w') as file:
 		# file.write('# <degree>, <accuracy score vector>\n')
 		for deg in range(2,8):
-			clf = svm.SVC(kernel='poly', C=cost, degree = deg)
-			scores = cross_val_score(clf, values, classes, cv=10)
+			clf = svm.SVC(kernel = 'poly', C = cost, degree = deg)
+			scores = cross_val_score(clf, values, classes, cv = 10)
 			scores_str = ",".join(str(i) for i in scores)
-			file.write(str(deg)+','+scores_str+'\n')
+			file.write(str(deg) + ',' + scores_str + '\n')
 
 def test_rbf_SVC_params(dataset_name, layer_name, cost):
-	names, values, classes = o2f.load_data(layer_output_file, " ")
+	names, values, classes = o2f.load_data('outputs/' + dataset_name + '/' + layer_name + '.txt', " ")
 	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
 
-	with open('svm_performance/'+dataset_name+'/accuracy-rbf-'+ layer_name +'.csv','w') as file:
+	with open('svm_performance/' + dataset_name + '/accuracy-rbf-' + layer_name + '.csv','w') as file:
 		# file.write('# <gamma>, <accuracy score vector>\n')
 		for i in range(9):
 			g = (1<<i)/(4*values.shape[1])
-			clf = svm.SVC(kernel='rbf', C=cost, gamma = g)
-			scores = cross_val_score(clf, values, classes, cv=10)
+			clf = svm.SVC(kernel = 'rbf', C = cost, gamma = g)
+			scores = cross_val_score(clf, values, classes, cv = 10)
 			scores_str = ",".join(str(i) for i in scores)
-			file.write(str(g)+','+scores_str+'\n')
+			file.write(str(g) + ',' + scores_str + '\n')
 
 
 ######################################################################################	

@@ -15,7 +15,7 @@ from keras.applications.vgg16 import preprocess_input
 from keras.models import Model
 
 
-def save_data(filename, imgs_names, output_values, imgs_classes):
+def save_data(filename, imgs_names, output_values, imgs_classes, **kwargs):
 	'''
 		Saves the following pattern to the given file:
 		<image name> <output values> <image ground truth label>
@@ -36,11 +36,14 @@ def save_data(filename, imgs_names, output_values, imgs_classes):
 	concat1 = np.r_['1,2,0', imgs_names, output_values]
 	concat2 = np.r_['1,2,0', concat1, imgs_classes]
 	
-	# deletes file if it already exists
-	try:
-		os.remove(filename)
-	except OSError:
-		pass
+	if ('append' not in kwargs) or ('append' in kwargs and kwargs['append'] == False): 
+		# deletes file if it already exists
+		try:
+			os.remove(filename)
+		except OSError:
+			pass
+	else:
+		print('appending to the old file...')
 
 	with open(filename, 'ab') as output_file: # append to the end of the file
 		np.savetxt(output_file, concat2, fmt = '%s')
@@ -61,13 +64,17 @@ def load_data(filename, separator):
 	values = data[:, 1:-1].astype('float64')
 	return names, values, classes
 
-def batch_preprocessing(datasets_path, dataset_name): 
+def batch_preprocessing(datasets_path, dataset_name, **kwargs): 
 	print(datasets_path + dataset_name)
 	subdirs = next(os.walk(datasets_path + dataset_name))[1] # returns all the subdirectories inside Produce_1400
-	print(subdirs)
+	# print(subdirs)
 	all_imgs = []
 	all_imgs_names = []
 	all_imgs_classes = []
+	if 'start_subdir' in kwargs and 'end_subdir' in kwargs:
+		start = kwargs['start_subdir']
+		end = kwargs['end_subdir']
+		subdirs = subdirs[start:end]
 	for subdir in subdirs:
 		imgs_names = [subdir+'/'+img for img in os.listdir(datasets_path + dataset_name +'/'+subdir) if img.endswith('.jpg') or img.endswith('.png')]
 		imgs_classes = np.empty(len(imgs_names), dtype=np.str)

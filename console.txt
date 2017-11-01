@@ -1,12 +1,13 @@
-Using TensorFlow backend.
-/usr/local/lib/python2.7/dist-packages/matplotlib/__init__.py:1405: UserWarning: 
-This call to matplotlib.use() has no effect because the backend has already
-been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
-or matplotlib.backends is imported for the first time.
 
-  warnings.warn(_use_error_msg)
-2017-09-11 10:29:18.783914: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
-2017-09-11 10:29:18.783962: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
-2017-09-11 10:29:18.783980: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
-2017-09-11 10:29:18.783994: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
-2017-09-11 10:29:18.784008: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+
+
+
+Starting...
+
+
+
+
+/home/DADOS1/esouza/Datasets/classified/coil-20
+['02', '18', '13', '06', '07', '15', '08', '19', '20', '11', '09', '16', '12', '01', '04', '14', '17', '03', '05', '10']
+/home/DADOS1/esouza/Datasets/classified/corel-1000
+['02', '06', '07', '08', '09', '01', '04', '03', '05', '10']

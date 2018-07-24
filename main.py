@@ -71,16 +71,29 @@ def main2():
 def  main3():
 	cnn = VGG16(weights='imagenet')
 	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
-	datasets_names = ['17flowers', 'coil-20', 'corel-1000',  'CUB_200_2011', 'tropical_fruits1400']
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
 	for dataset_name in datasets_names:
 		for layer_name in layers_names:
 			boxplot.plot_svm_performance(dataset_name, layer_name, show = False)
 
-################################################################################################
+def  main4():
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if (layer.name[-4:] != 'pool') and (layer.name != 'flatten')]
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	for dataset_name in datasets_names:
+			boxplot.plot_svm_performance_per_dataset(dataset_name, layers_names, show = False)
 
+<<<<<<< Updated upstream
 if __name__ == '__main__':
 	print("\n\n\n\nStarting...\n\n\n\n")
 	
 	main2()
+=======
+################################################################################################
+
+if __name__ == '__main__':
+	print("\n\n\nStarting...\n\n\n")	
+	main3()
+>>>>>>> Stashed changes
 
 

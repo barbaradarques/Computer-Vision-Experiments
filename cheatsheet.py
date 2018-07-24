@@ -32,3 +32,5 @@
 # clf = clf.fit(values_train, classes_train)
 # print(clf.score(values_test, classes_test))
 # print(clf.predict(values_test[:10]))
+
+if __name__ == "__main__":

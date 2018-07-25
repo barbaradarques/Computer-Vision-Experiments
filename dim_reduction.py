@@ -72,14 +72,15 @@ def main1():
 
 
 def main2():
- 	cnn = VGG16(weights='imagenet')
- 	#layers_names = [layer.name for layer in cnn.layers[-8:-7] if (layer.name[-4:] != 'pool') and (layer.name != 'flatten')] # !!! using just block5_conv1 for now !! 	
-	layers_names = ['block5_conv1']	
+	cnn = VGG16(weights='imagenet')
+	# layers_names = [layer.name for layer in cnn.layers[-8:-7] if (layer.name[-4:] != 'pool') and (layer.name != 'flatten')] # !!! using just block5_conv1 for now !!
+
 	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
- 	for dataset_name in datasets_names:
- 		for layer_name in layers_names:
- 			print(dataset_name + ' - ' + layer_name)
- 			plot_tsne_results(dataset_name, layer_name)
+	layers_names = ['block5_conv1']
+	for dataset_name in datasets_names:
+		for layer_name in layers_names:
+			print(dataset_name + ' - ' + layer_name)
+			plot_tsne_results(dataset_name, layer_name)
 
 
 if __name__ == '__main__':

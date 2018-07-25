@@ -1,5 +1,5 @@
 
-from svm import load_accuracy_file
+from svm_tests import load_accuracy_file
 import numpy as np
 import matplotlib as mpl 
 from matplotlib.ticker import FormatStrFormatter

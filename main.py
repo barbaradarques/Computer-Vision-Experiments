@@ -4,9 +4,12 @@ import time
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input, decode_predictions
+from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
 from keras.models import Model
 import output2file as o2f
-import svm
+from sklearn import svm
+import svm_tests
+import dim_reduction
 import boxplot
 
 
@@ -60,11 +63,11 @@ def main2():
 		for layer_name in layers_names:
 			print('- layer = ' + layer_name) 
 			print('linear')
-			svm.test_linear_SVC_params(dataset_name, layer_name)
+			svm_tests.test_linear_SVC_params(dataset_name, layer_name)
 			print('rbf')
-			svm.test_rbf_SVC_params(dataset_name, layer_name, 1)
+			svm_tests.test_rbf_SVC_params(dataset_name, layer_name, 1)
 			print('poly')
-			svm.test_poly_SVC_params(dataset_name, layer_name, 1)
+			svm_tests.test_poly_SVC_params(dataset_name, layer_name, 1)
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))
 
@@ -83,17 +86,32 @@ def  main4():
 	for dataset_name in datasets_names:
 			boxplot.plot_svm_performance_per_dataset(dataset_name, layers_names, show = False)
 
-<<<<<<< Updated upstream
+def main5():
+	datasets_names = ['tropical_fruits1400']
+
+	for dataset_name in datasets_names:	
+		layer_name = 'block5_conv1'
+		names, values, classes = o2f.load_data('outputs/produce-fc1.txt', " ")
+		tsne_data = dim_reduction.load_2d_data(dataset_name, layer_name)
+		print(names.shape)
+		print('tsne_data.shape = ', end=' ')
+		print(tsne_data.shape)
+		print('classes.shape = ', end=' ')
+		print(classes)
+		values_train, values_test, classes_train, classes_test = train_test_split(tsne_data, classes, test_size=0.9, random_state=0)
+		
+		with open('t-sne_performance/' + dataset_name + '-block5_conv1.csv','w') as file:
+			clf = svm.SVC(kernel = 'linear') # uses default cost = 1.0 and linear kernel because it was the one that performed better in previous tests
+			scores = cross_val_score(clf, tsne_data, classes, cv = 10)
+			scores_str = ",".join(str(i) for i in scores)
+			file.write(scores_str + '\n') # previously str(cost) + ','
+
+	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))
+
+
 if __name__ == '__main__':
 	print("\n\n\n\nStarting...\n\n\n\n")
 	
-	main2()
-=======
-################################################################################################
-
-if __name__ == '__main__':
-	print("\n\n\nStarting...\n\n\n")	
-	main3()
->>>>>>> Stashed changes
+	main5()
 
 

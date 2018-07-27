@@ -23,7 +23,7 @@ def test_linear_SVC_params(dataset_name, layer_name):
 	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
 
 	print('saving linear results...') 
-	with open('svm_performance/' + dataset_name + '/accuracy-linear-' + layer_name + '.csv','w') as file:
+	# with open('svm_performance/' + dataset_name + '/accuracy-linear-' + layer_name + '.csv','w') as file:
 		# file.write('# <cost>, <accuracy score vector>\n')
 		for i in range(11):
 			print(i) # <<<<<
@@ -31,7 +31,7 @@ def test_linear_SVC_params(dataset_name, layer_name):
 			clf = svm.SVC(kernel = 'linear', C = cost)
 			scores = cross_val_score(clf, values, classes, cv = 10)
 			scores_str = ",".join(str(i) for i in scores)
-			file.write(str(cost) + ',' + scores_str + '\n')
+			# file.write(str(cost) + ',' + scores_str + '\n')
 			# ====================================
 		# 	plot_linear(clf, values, classes, False, i)
 		# plt.show() # it's needed once 'show' is set to False in plot_linear <<<<

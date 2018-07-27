@@ -91,12 +91,12 @@ def main5():
 
 	for dataset_name in datasets_names:	
 		layer_name = 'block5_conv1'
-		names, values, classes = o2f.load_data('outputs/produce-fc1.txt', " ")
+		names, values, classes = o2f.load_data('outputs/' + dataset_name + '/' + layer_name + '.txt', " ")
 		tsne_data = dim_reduction.load_2d_data(dataset_name, layer_name)
 		print(names.shape)
 		print('tsne_data.shape = ', end=' ')
 		print(tsne_data.shape)
-		print('classes.shape = ', end=' ')
+		print('classes = ', end=' ')
 		print(classes)
 		values_train, values_test, classes_train, classes_test = train_test_split(tsne_data, classes, test_size=0.9, random_state=0)
 		

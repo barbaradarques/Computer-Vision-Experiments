@@ -175,7 +175,7 @@ def flatten_input(x_train, x_test):
 	return x_train, x_test
 
 
-def save_encoded_values(tag, encoder, images):
+def save_encoded_values(tag, trained_encoder, images):
 	print('--- save_encoded_values --- tag: ' + tag)
 	output = trained_encoder.predict(images)
 	print(output.shape)

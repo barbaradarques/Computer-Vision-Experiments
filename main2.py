@@ -18,6 +18,7 @@ import matplotlib as mpl
 from custom_layers import TiedDenseLayer
 from keras import backend as K
 import tensorflow as tf
+import os
 
 # def main1():
 # 	datasets_names = ['tropical_fruits1400']
@@ -45,6 +46,9 @@ import tensorflow as tf
 
 def test_autoencoder(tag, x_train, x_test):
 	print("----- test_autoencoder -----")
+
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
 
 	input_img = Input(shape=(784,))
 
@@ -97,6 +101,9 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	print("\n\n\n----- test_conv_autoencoder -----\n\n\n")
 
 	model_id = 'conv'
+	
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
 
 	input_img = Input(shape=(28,28,1))
 
@@ -181,6 +188,9 @@ def test_tied_autoencoder(tag, x_train, x_test):
 	print("----- test_tied_autoencoder -----")
 	model_id = 'tied_transpose_2_128'
 
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
+
 	input_img = Input(shape=(784,))
 
 	##### 
@@ -242,6 +252,9 @@ def test_tied_autoencoder(tag, x_train, x_test):
 def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	print("----- test_inverse_tied_autoencoder -----")
 	model_id = 'tied_inverse_2_128_extended'
+
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
 
 	input_img = Input(shape=(784,))
 	
@@ -305,6 +318,9 @@ def test_tied_conv_autoencoder():
 	print("\n\n\n----- test_conv_autoencoder -----\n\n\n")
 
 	model_id = 'conv'
+
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
 
 	input_img = Input(shape=(28,28,1))
 

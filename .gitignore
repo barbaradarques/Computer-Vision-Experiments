@@ -1,3 +1,4 @@
 outputs/
 __pycache__/
 autoencoder_results/encoded_outputs/*
+autoencoder_results/*/*.h5

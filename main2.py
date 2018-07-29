@@ -13,7 +13,7 @@ import pickle
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape
 from keras.models import Model, load_model
 from keras.callbacks import CSVLogger, TensorBoard
- 
+from sklearn.model_selection import train_test_split
 
 import matplotlib as mpl 
 mpl.use('Agg')
@@ -109,8 +109,13 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	if not os.path.exists('autoencoder_results/' + model_id):
 		os.makedirs('autoencoder_results/' + model_id)
 
-	input_img = Input(shape=(28,28,1))
 
+	if tag == 'mnist':
+		shape = (28, 28, 1)
+	else:
+		shape = (224, 224, 3)
+
+	input_img = Input(shape=shape)
 	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
 	encoded = Flatten()(encoded)
 	encoded = Dense(256, activation='relu')(encoded)
@@ -119,10 +124,10 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	#####
 	
 	decoded = Dense(256, activation='relu')(encoded)
-	decoded = Dense(12544, activation='relu')(decoded)
-	decoded = Reshape((28,28,16))(decoded) # -1 is used to infer the size of the batch
+	decoded = Dense(16*shape[0]*shape[1], activation='relu')(decoded)
+	decoded = Reshape((shape[0],shape[1],16))(decoded) 
 	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
-	decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(decoded)
+	decoded = Conv2D(shape[2], (3, 3), activation='sigmoid', padding='same')(decoded)
 	
 	#####
 
@@ -159,9 +164,9 @@ def test_conv_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
-	images, classes = process_mnist()
-	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images)
+	# images, classes = process_mnist()
+	# save_encoded_values(tag + '_' + model_id,
+	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
 
 def flatten_input(x_train, x_test):
 	print('--- flatten_input ---')
@@ -315,7 +320,7 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
 	images, classes = process_mnist()
 	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images)
+						trained_encoder=encoder, images=images) # save manually because the inputs have been shuffled for training
 
 
 def test_tied_conv_autoencoder():
@@ -446,6 +451,18 @@ def main4():
 	save_encoded_values('mnist_conv',
 						trained_encoder=encoder, images=images)
 
+def main5():
+	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	# datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	datasets_names = ['tropical_fruits1400']
+	datasets_path = ''
+	for dataset_name in datasets_names:
+		preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name)
+		print(preprocessed_imgs.shape)
+		x_train, x_test = train_test_split(preprocessed_imgs)
+		test_conv_autoencoder(dataset_name, x_train, x_test)
+
+
 def process_mnist():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
 	images = np.concatenate([x_train, x_test])
@@ -457,7 +474,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main2()
+	main5()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

@@ -11,6 +11,7 @@ from sklearn import svm
 import svm_tests
 import dim_reduction
 import boxplot
+from sklearn.model_selection import train_test_split
 
 
 def main_cub():

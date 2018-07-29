@@ -117,19 +117,31 @@ def test_conv_autoencoder(tag, x_train, x_test):
 
 	input_img = Input(shape=shape)
 	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+	print(encoded._keras_shape)
 	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
+	print(encoded._keras_shape)
 	encoded = Flatten()(encoded)
+	print(encoded._keras_shape)
 	encoded = Dense(256, activation='relu')(encoded)
+	print(encoded._keras_shape)
 	encoded = Dense(128, activation='relu')(encoded)
+	print(encoded._keras_shape)
 
 	#####
+	print('start of the decoder')
 	
 	decoded = Dense(256, activation='relu')(encoded)
-	decoded = Dense(16*shape[0]*shape[1]/4, activation='relu')(decoded)
-	decoded = Reshape((shape[0]/2,shape[1]/2,16))(decoded) 
+	print(decoded._keras_shape)
+	decoded = Dense(int(((16*shape[0]*shape[1])/4)), activation='relu')(decoded)
+	print(decoded._keras_shape)
+	decoded = Reshape((int(shape[0]/2),int(shape[1]/2),16))(decoded) 
+	print(decoded._keras_shape)
 	decoded = UpSampling2D((2, 2))(decoded)
+	print(decoded._keras_shape)
 	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
-	decoded = Conv2D(shape[2], (3, 3), activation='sigmoid', padding='same')(decoded)
+	print(decoded._keras_shape)
+	decoded = Conv2D(int(shape[2]), (3, 3), activation='sigmoid', padding='same')(decoded)
+	print(decoded._keras_shape)
 	
 	#####
 
@@ -145,7 +157,8 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	##########
 	encoded_input = Input(shape=(128,))
 
-	deco = autoencoder.layers[-5](encoded_input)
+	deco = autoencoder.layers[-6](encoded_input)
+	deco = autoencoder.layers[-5](deco)
 	deco = autoencoder.layers[-4](deco)
 	deco = autoencoder.layers[-3](deco)
 	deco = autoencoder.layers[-2](deco)
@@ -477,7 +490,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main5()
+	main1()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

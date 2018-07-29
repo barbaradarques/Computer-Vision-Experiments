@@ -234,8 +234,9 @@ def test_tied_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Transposição", history.history)
+	images, classes = process_mnist()
 	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images, classes=classes)
+						trained_encoder=encoder, images=images)
 
 
 def test_inverse_tied_autoencoder(tag, x_train, x_test):
@@ -295,8 +296,9 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
+	images, classes = process_mnist()
 	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images, classes=classes)
+						trained_encoder=encoder, images=images)
 
 
 def test_tied_conv_autoencoder():
@@ -354,8 +356,9 @@ def test_tied_conv_autoencoder():
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
+	images, classes = process_mnist()
 	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images, classes=classes)
+						trained_encoder=encoder, images=images)
 
 
 

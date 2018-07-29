@@ -117,6 +117,7 @@ def test_conv_autoencoder(tag, x_train, x_test):
 
 	input_img = Input(shape=shape)
 	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
 	encoded = Flatten()(encoded)
 	encoded = Dense(256, activation='relu')(encoded)
 	encoded = Dense(128, activation='relu')(encoded)
@@ -124,8 +125,9 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	#####
 	
 	decoded = Dense(256, activation='relu')(encoded)
-	decoded = Dense(16*shape[0]*shape[1], activation='relu')(decoded)
-	decoded = Reshape((shape[0],shape[1],16))(decoded) 
+	decoded = Dense(16*shape[0]*shape[1]/4, activation='relu')(decoded)
+	decoded = Reshape((shape[0]/2,shape[1]/2,16))(decoded) 
+	decoded = UpSampling2D((2, 2))(decoded)
 	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
 	decoded = Conv2D(shape[2], (3, 3), activation='sigmoid', padding='same')(decoded)
 	

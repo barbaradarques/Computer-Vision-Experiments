@@ -13,8 +13,11 @@ import pickle
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape
 from keras.models import Model, load_model
 from keras.callbacks import CSVLogger, TensorBoard
-import matplotlib.pyplot as plt 
+ 
+
 import matplotlib as mpl 
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 from custom_layers import TiedDenseLayer
 from keras import backend as K
 import tensorflow as tf
@@ -426,8 +429,8 @@ def main1():
 
 
 def main2():	
-	history = load_training_history('autoencoder_results/tied_inverse_2_128_extended/mnist_history.pckl')
-	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history)
+	history = load_training_history('autoencoder_results/conv/mnist_history.pckl')
+	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarrar Pesos", history)
 
 def main3():
 	(x_train, _), (x_test, y_test) = mnist.load_data()
@@ -454,7 +457,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main4()
+	main2()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

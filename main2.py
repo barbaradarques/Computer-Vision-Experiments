@@ -490,7 +490,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main1()
+	main5()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

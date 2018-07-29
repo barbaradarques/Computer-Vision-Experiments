@@ -148,8 +148,9 @@ def test_conv_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
-	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
-						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
+	images, classes = process_mnist()
+	save_encoded_values(tag + '_' + model_id,
+						trained_encoder=encoder, images=images)
 
 def flatten_input(x_train, x_test):
 	print('--- flatten_input ---')
@@ -166,17 +167,14 @@ def flatten_input(x_train, x_test):
 	return x_train, x_test
 
 
-def save_encoded_values(tag, preprocessed_x_train, trained_encoder, preprocessed_x_test=None):
+def save_encoded_values(tag, encoder, images):
 	print('--- save_encoded_values --- tag: ' + tag)
-	output = trained_encoder.predict(preprocessed_x_train)
+	output = trained_encoder.predict(images)
 	print(output.shape)
-	pickle.dump(output, open('autoencoder_results/encoded_outputs/' + tag +"_x_train.pckl", "wb")) # just for safety
+	pickle.dump(output, open('autoencoder_results/encoded_outputs/' + tag +".pckl", "wb")) # just for safety
 
-	np.savetxt('autoencoder_results/encoded_outputs/' + tag + "_x_train.csv", output, delimiter=",")
-	if preprocessed_x_test is not None:
-		output = trained_encoder.predict(preprocessed_x_test)
-		print(output.shape)
-		np.savetxt('autoencoder_results/encoded_outputs/' + tag + "_x_test.csv", output, delimiter=",")
+	np.savetxt('autoencoder_results/encoded_outputs/' + tag + ".csv", output, delimiter=",")
+	
 	
 
 def test_tied_autoencoder(tag, x_train, x_test):
@@ -236,8 +234,8 @@ def test_tied_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Transposição", history.history)
-	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
-						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
+	save_encoded_values(tag + '_' + model_id,
+						trained_encoder=encoder, images=images, classes=classes)
 
 
 def test_inverse_tied_autoencoder(tag, x_train, x_test):
@@ -297,8 +295,8 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
-	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
-						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
+	save_encoded_values(tag + '_' + model_id,
+						trained_encoder=encoder, images=images, classes=classes)
 
 
 def test_tied_conv_autoencoder():
@@ -356,8 +354,8 @@ def test_tied_conv_autoencoder():
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
-	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
-						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
+	save_encoded_values(tag + '_' + model_id,
+						trained_encoder=encoder, images=images, classes=classes)
 
 
 
@@ -421,12 +419,18 @@ def main4():
 	save_encoded_values('mnist_tied_inverse_1_128', preprocessed_x_train=flat_x_train,
 						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
+def process_mnist():
+	(x_train, y_train), (x_test, y_test) = mnist.load_data()
+	images = np.concatenate([x_train, x_test])
+	classes = np.concatenate([y_train, y_test])
+	return images, classes
+
 if __name__ == '__main__':
 	print("\n\n\n\nStarting...\n\n\n\n")
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main2()
+	main1()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

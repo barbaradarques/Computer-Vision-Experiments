@@ -10,12 +10,14 @@ import matplotlib.pyplot as sp
 from keras.datasets import mnist
 from time import gmtime, strftime
 import pickle 
-from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D
+from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape
 from keras.models import Model, load_model
 from keras.callbacks import CSVLogger, TensorBoard
 import matplotlib.pyplot as plt 
 import matplotlib as mpl 
 from custom_layers import TiedDenseLayer
+from keras import backend as K
+import tensorflow as tf
 
 # def main1():
 # 	datasets_names = ['tropical_fruits1400']
@@ -68,7 +70,8 @@ def test_autoencoder(tag, x_train, x_test):
 
 	##########
 
-	flat_x_train, flat_x_test = flatten_input(x_train, x_test)
+	# TODO: ADAPT OLD COLD TO NEW STRUCTURE! <<<<<
+	####
 
 	# csv_logger = CSVLogger('autoencoder_results/' + tag + '_normal_training.log')
 	# tb_callback = TensorBoard(log_dir='./tensorboard_logs/' + tag + '_normal_training',
@@ -90,6 +93,63 @@ def test_autoencoder(tag, x_train, x_test):
 	save_encoded_values(tag + '_normal', preprocessed_x_train=flat_x_train,
 						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
+def test_conv_autoencoder(tag, x_train, x_test):
+	print("\n\n\n----- test_conv_autoencoder -----\n\n\n")
+
+	model_id = 'conv'
+
+	input_img = Input(shape=(28,28,1))
+
+	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+	encoded = Flatten()(encoded)
+	encoded = Dense(256, activation='relu')(encoded)
+	encoded = Dense(128, activation='relu')(encoded)
+
+	#####
+	
+	decoded = Dense(256, activation='relu')(encoded)
+	decoded = Dense(12544, activation='relu')(decoded)
+	decoded = Reshape((28,28,16))(decoded) # -1 is used to infer the size of the batch
+	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
+	decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(decoded)
+	
+	#####
+
+	autoencoder = Model(input_img, decoded)
+
+	autoencoder.summary()
+	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics = ['acc'])
+
+	##########
+
+	encoder = Model(input_img, encoded)
+
+	##########
+	encoded_input = Input(shape=(128,))
+
+	deco = autoencoder.layers[-5](encoded_input)
+	deco = autoencoder.layers[-4](deco)
+	deco = autoencoder.layers[-3](deco)
+	deco = autoencoder.layers[-2](deco)
+	deco = autoencoder.layers[-1](deco)
+	decoder = Model(encoded_input, deco)
+
+	history = autoencoder.fit(x_train, x_train,
+				epochs=50,
+				batch_size=256,
+				shuffle=True,
+				validation_data=(x_test, x_test))
+
+	autoencoder.save('autoencoder_results/' + model_id + '/' + tag + '_autoencoder.h5')
+	encoder.save('autoencoder_results/' + model_id + '/' + tag + '_encoder.h5')
+	decoder.save('autoencoder_results/' + model_id + '/' + tag + '_decoder.h5')
+
+	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
+		pickle.dump(history.history, pckl)
+	
+	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
+	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
+						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
 def flatten_input(x_train, x_test):
 	print('--- flatten_input ---')
@@ -106,7 +166,6 @@ def flatten_input(x_train, x_test):
 	return x_train, x_test
 
 
-
 def save_encoded_values(tag, preprocessed_x_train, trained_encoder, preprocessed_x_test=None):
 	print('--- save_encoded_values --- tag: ' + tag)
 	output = trained_encoder.predict(preprocessed_x_train)
@@ -118,7 +177,6 @@ def save_encoded_values(tag, preprocessed_x_train, trained_encoder, preprocessed
 		output = trained_encoder.predict(preprocessed_x_test)
 		print(output.shape)
 		np.savetxt('autoencoder_results/encoded_outputs/' + tag + "_x_test.csv", output, delimiter=",")
-
 	
 
 def test_tied_autoencoder(tag, x_train, x_test):
@@ -181,6 +239,7 @@ def test_tied_autoencoder(tag, x_train, x_test):
 	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
 						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
+
 def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	print("----- test_inverse_tied_autoencoder -----")
 	model_id = 'tied_inverse_2_128_extended'
@@ -237,13 +296,12 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas\n(Treinamento Extendido)", history.history)
+	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
 	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
 						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
 
-
-def test_conv_autoencoder():
+def test_tied_conv_autoencoder():
 	print("----- test_conv_autoencoder -----")
 	model_id = 'inverse_tied_transpose_1_128'
 
@@ -299,7 +357,7 @@ def test_conv_autoencoder():
 
 
 
-def test_conv_tied_autoencoder():
+def test_inverse_tied_conv_autoencoder():
 	pass
 
 
@@ -350,14 +408,17 @@ def load_trained_model(filename):
 
 def main1():
 	(x_train, _), (x_test, y_test) = mnist.load_data()
-	x_train, x_test = flatten_input(x_train, x_test)
-	test_tied_autoencoder('mnist', x_train, x_test)
+	x_train = x_train.astype('float32') / 255.
+	x_test = x_test.astype('float32') / 255.
+	x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
+	x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
+	test_conv_autoencoder('mnist', x_train, x_test)
 
 
 
 def main2():	
-
-	plot_loss_and_accuracy("MNIST Autoencoder Tradicional", None)
+	history = load_training_history('autoencoder_results/tied_inverse_2_128_extended/mnist_history.pckl')
+	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history)
 
 def main3():
 	(x_train, _), (x_test, y_test) = mnist.load_data()
@@ -374,7 +435,8 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main3()
+	main1()
+	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))
 	

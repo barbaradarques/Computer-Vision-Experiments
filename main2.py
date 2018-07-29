@@ -167,7 +167,7 @@ def test_conv_autoencoder(tag, x_train, x_test):
 
 	history = autoencoder.fit(x_train, x_train,
 				epochs=50,
-				batch_size=256,
+				batch_size=128,
 				shuffle=True,
 				validation_data=(x_test, x_test))
 

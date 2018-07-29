@@ -436,8 +436,10 @@ def main3():
 
 def main4():
 	encoder = load_trained_model('autoencoder_results/conv/mnist_encoder.h5')
-	
 	images, classes = process_mnist()
+	images = images.astype('float32') / 255.
+	images = images.reshape((len(images), np.prod(images.shape[1:])))
+	
 	save_encoded_values('mnist_conv',
 						trained_encoder=encoder, images=images)
 

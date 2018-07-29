@@ -94,8 +94,9 @@ def test_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	plot_loss_and_accuracy("MNIST Autoencoder Tradicional", history.history)
-	save_encoded_values(tag + '_normal', preprocessed_x_train=flat_x_train,
-						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
+	images, classes = process_mnist()
+	save_encoded_values(tag + '_' + model_id,
+						trained_encoder=encoder, images=images)
 
 def test_conv_autoencoder(tag, x_train, x_test):
 	print("\n\n\n----- test_conv_autoencoder -----\n\n\n")
@@ -434,9 +435,11 @@ def main3():
 	test_inverse_tied_autoencoder('mnist', x_train, x_test)
 
 def main4():
-	encoder = load_trained_model('tied_inverse_1_128/mnist_encoder.h5')
-	save_encoded_values('mnist_tied_inverse_1_128', preprocessed_x_train=flat_x_train,
-						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
+	encoder = load_trained_model('autoencoder_results/conv/mnist_encoder.h5')
+	
+	images, classes = process_mnist()
+	save_encoded_values('mnist_conv',
+						trained_encoder=encoder, images=images)
 
 def process_mnist():
 	(x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -449,7 +452,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main1()
+	main4()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

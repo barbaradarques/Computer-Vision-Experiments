@@ -123,16 +123,22 @@ def save_encoded_values(tag, preprocessed_x_train, trained_encoder, preprocessed
 
 def test_tied_autoencoder(tag, x_train, x_test):
 	print("----- test_tied_autoencoder -----")
-	model_id = 'tied_transpose_1_128'
+	model_id = 'tied_transpose_2_128'
 
 	input_img = Input(shape=(784,))
 
-	encoding_layer = Dense(128, activation='relu')
-	encoded = encoding_layer(input_img)
-	# encoded = Dense(128, activation='relu')(encoded)
+	##### 
 
-	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer, tie_type = 'transpose', activation='relu')(encoded)
-	# decoded = Dense(784, activation='relu')(decoded)
+	encoding_layer_1 = Dense(256, activation='relu')
+	encoding_layer_2 = Dense(128, activation='relu')
+
+	encoded = encoding_layer_1(input_img)
+	encoded = encoding_layer_2(encoded)
+
+	#####
+
+	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_2, tie_type = 'transpose', activation='relu')(encoded)
+	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer_1, tie_type = 'transpose', activation='relu')(decoded)
 
 	autoencoder = Model(input_img, decoded)
 	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics = ['acc'])
@@ -142,10 +148,11 @@ def test_tied_autoencoder(tag, x_train, x_test):
 	encoder = Model(input_img, encoded)
 
 	##########
+
 	encoded_input = Input(shape=(128,))
 
-	deco = autoencoder.layers[-1](encoded_input)
-	# deco = autoencoder.layers[-1](deco)
+	deco = autoencoder.layers[-2](encoded_input)
+	deco = autoencoder.layers[-1](deco)
 	decoder = Model(encoded_input, deco)
 
 	##########
@@ -170,22 +177,28 @@ def test_tied_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder 1 Camada de Codificação Amarrada por Transposição", history.history)
+	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Transposição", history.history)
 	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
 						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
 def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	print("----- test_inverse_tied_autoencoder -----")
-	model_id = 'tied_inverse_1_128'
+	model_id = 'tied_inverse_2_128_extended'
 
 	input_img = Input(shape=(784,))
+	
+	##### 
 
-	encoding_layer = Dense(128, activation='relu')
-	encoded = encoding_layer(input_img)
-	# encoded = Dense(128, activation='relu')(encoded)
+	encoding_layer_1 = Dense(256, activation='relu')
+	encoding_layer_2 = Dense(128, activation='relu')
 
-	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer, tie_type = 'inverse', activation='relu')(encoded)
-	# decoded = Dense(784, activation='relu')(decoded)
+	encoded = encoding_layer_1(input_img)
+	encoded = encoding_layer_2(encoded)
+
+	#####
+	
+	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_2, tie_type = 'inverse', activation='relu')(encoded)
+	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer_1, tie_type = 'inverse', activation='relu')(decoded)
 
 	autoencoder = Model(input_img, decoded)
 	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy', metrics = ['acc'])
@@ -195,10 +208,11 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	encoder = Model(input_img, encoded)
 
 	##########
+
 	encoded_input = Input(shape=(128,))
 
-	deco = autoencoder.layers[-1](encoded_input)
-	# deco = autoencoder.layers[-1](deco)
+	deco = autoencoder.layers[-2](encoded_input)
+	deco = autoencoder.layers[-1](deco)
 	decoder = Model(encoded_input, deco)
 
 	##########
@@ -210,7 +224,7 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	# 							histogram_freq=1, write_graph=True, write_images=False)
 
 	history = autoencoder.fit(flat_x_train, flat_x_train,
-				epochs=50,
+				epochs=100,
 				batch_size=256,
 				shuffle=True,
 				validation_data=(flat_x_test, flat_x_test)) # callbacks=[csv_logger, tb_callback]
@@ -223,7 +237,7 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder 1 Camada de Codificação Amarrada por Inversas Aproximadas", history.history)
+	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas\n(Treinamento Extendido)", history.history)
 	save_encoded_values(tag + '_' + model_id, preprocessed_x_train=flat_x_train,
 						trained_encoder=encoder, preprocessed_x_test=flat_x_test)
 
@@ -327,7 +341,7 @@ def plot_loss_and_accuracy(tag, history):
 
 def load_training_history(filename):
 	# filename = 'autoencoder_results/normal/mnist_history.pckl'
-	return pickle.load(open(, 'rb'))
+	return pickle.load(open(filename, 'rb'))
 
 
 def load_trained_model(filename):
@@ -337,7 +351,7 @@ def load_trained_model(filename):
 def main1():
 	(x_train, _), (x_test, y_test) = mnist.load_data()
 	x_train, x_test = flatten_input(x_train, x_test)
-	test_autoencoder('mnist', x_train, x_test)
+	test_tied_autoencoder('mnist', x_train, x_test)
 
 
 

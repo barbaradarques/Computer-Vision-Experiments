@@ -74,7 +74,7 @@ def batch_preprocessing(datasets_path, dataset_name, **kwargs):
 
 	if 'target_size' in kwargs:
 		target_size = kwargs['target_size']
-	else
+	else:
 		target_size = 224
 
 	if 'start_subdir' in kwargs and 'end_subdir' in kwargs:

@@ -23,6 +23,7 @@ from keras import backend as K
 import tensorflow as tf
 import os
 
+
 # tf.losses.sigmoid_cross_entropy
 
 # def main1():
@@ -287,16 +288,16 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	
 	##### 
 
-	encoding_layer_1 = Dense(256, activation='relu')
-	encoding_layer_2 = Dense(128, activation='relu')
+	encoding_layer_1 = Dense(256)
+	encoding_layer_2 = Dense(128)
 
 	encoded = encoding_layer_1(input_img)
 	encoded = encoding_layer_2(encoded)
 
 	#####
 	
-	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_2, tie_type = 'inverse', activation='relu')(encoded)
-	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer_1, tie_type = 'inverse', activation='relu')(decoded)
+	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_2, tie_type = 'inverse')(encoded) # TODO PUT THE ACTIVATION BACK
+	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer_1, tie_type = 'inverse')(decoded)
 
 	autoencoder = Model(input_img, decoded)
 	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
@@ -337,8 +338,8 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	
 	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
 	images, classes = process_mnist()
-	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images) # save manually because the inputs have been shuffled for training
+	# save_encoded_values(tag + '_' + model_id,
+	# 					trained_encoder=encoder, images=images) # save manually because the inputs have been shuffled for training
 
 
 def test_only_dense_tied_conv_autoencoder(tag, x_train, x_test):
@@ -479,7 +480,7 @@ def test_only_dense_tied_and_deconv_autoencoder(tag, x_train, x_test):
 	print(decoded._keras_shape)
 	decoded = UpSampling2D((2, 2))(decoded)
 	print(decoded._keras_shape)
-	decoded = Conv2DTranspose(16, (3, 3), activation='relu', padding='same')(decoded)
+	decoded =Convolution2D_tied(16, 3, 3, activation='relu', border_mode='same', tied_to=encoding_layer_1)(decoded)
 	print(decoded._keras_shape)
 	decoded = Conv2D(int(shape[2]), (3, 3), activation='sigmoid', padding='same')(decoded)
 	print(decoded._keras_shape)
@@ -568,13 +569,13 @@ def main1():
 
 
 def main2():	
-	history = load_training_history('autoencoder_results/normal/mnist_history.pckl')
-	plot_loss_and_accuracy("MNIST Autoencoder Tradicional", history)
+	history = load_training_history('autoencoder_results/only_dense_tied_and_deconv/mnist_history.pckl')
+	plot_loss_and_accuracy("MNIST - Autoencoder Convolucional com Camada de Deconvolução e Camadas Densas Amarradas por Transposição", history)
 
 def main3():
 	(x_train, _), (x_test, y_test) = mnist.load_data()
 	x_train, x_test = flatten_input(x_train, x_test)
-	test_tied_autoencoder('mnist', x_train, x_test)
+	test_inverse_tied_autoencoder('mnist', x_train, x_test)
 
 def main4():
 	encoder = load_trained_model('autoencoder_results/conv/mnist_encoder.h5')
@@ -609,7 +610,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main1()
+	main3()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

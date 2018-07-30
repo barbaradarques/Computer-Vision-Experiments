@@ -71,6 +71,12 @@ def batch_preprocessing(datasets_path, dataset_name, **kwargs):
 	all_imgs = []
 	all_imgs_names = []
 	all_imgs_classes = []
+
+	if 'target_size' in kwargs:
+		target_size = kwargs['target_size']
+	else
+		target_size = 224
+
 	if 'start_subdir' in kwargs and 'end_subdir' in kwargs:
 		start = kwargs['start_subdir']
 		end = kwargs['end_subdir']
@@ -82,7 +88,7 @@ def batch_preprocessing(datasets_path, dataset_name, **kwargs):
 		all_imgs_classes.extend(imgs_classes) # <<<<<<<<<<<<< 
 		all_imgs_names.extend(imgs_names) # <<<<<<<<<<<<< 
 		for img_name in imgs_names: # <<<<<<<<<<<<< 
-			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(224, 224))
+			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(target_size, target_size))
 			img = image.img_to_array(img)
 			all_imgs.append(img) # note that extend and append are different!
 

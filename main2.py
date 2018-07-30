@@ -113,7 +113,7 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	if tag == 'mnist':
 		shape = (28, 28, 1)
 	else:
-		shape = (224, 224, 3)
+		shape = (64, 64, 3)
 
 	input_img = Input(shape=shape)
 	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
@@ -472,7 +472,7 @@ def main5():
 	# datasets_names = ['tropical_fruits1400']
 	# datasets_path = ''
 	for dataset_name in datasets_names:
-		preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name)
+		preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name, target_size=64)
 		print(preprocessed_imgs.shape)
 		x_train, x_test = train_test_split(preprocessed_imgs)
 		print("input was shuffled...")

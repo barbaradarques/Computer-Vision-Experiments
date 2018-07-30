@@ -23,6 +23,8 @@ from keras import backend as K
 import tensorflow as tf
 import os
 
+# tf.losses.sigmoid_cross_entropy
+
 # def main1():
 # 	datasets_names = ['tropical_fruits1400']
 
@@ -338,28 +340,55 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 						trained_encoder=encoder, images=images) # save manually because the inputs have been shuffled for training
 
 
-def test_tied_conv_autoencoder():
-	print("\n\n\n----- test_conv_autoencoder -----\n\n\n")
+def test_only_dense_tied_conv_autoencoder(tag, x_train, x_test):
+	print("\n\n\n----- test_only_dense_tied_conv_autoencoder -----\n\n\n")
 
-	model_id = 'conv'
-
+	model_id = 'only_dense_tied_conv'
+	
 	if not os.path.exists('autoencoder_results/' + model_id):
 		os.makedirs('autoencoder_results/' + model_id)
 
-	input_img = Input(shape=(28,28,1))
 
-	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
-	encoded = Flatten()(encoded)
-	encoded = Dense(256, activation='relu')(encoded)
-	encoded = Dense(128, activation='relu')(encoded)
+	if tag == 'mnist':
+		shape = (28, 28, 1)
+	else:
+		shape = (64, 64, 3)
+
+	input_img = Input(shape=shape)
+
+	encoding_layer_1 = Conv2D(16, (3, 3), activation='relu', padding='same')
+	encoding_layer_2 = MaxPooling2D((2, 2), padding='same')
+	encoding_layer_3 = Flatten()
+	encoding_layer_4 = Dense(256, activation='relu')
+	encoding_layer_5 = Dense(128, activation='relu')
+
+
+	encoded = encoding_layer_1(input_img)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_2(encoded)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_3(encoded)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_4(encoded)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_5(encoded)
+	print(encoded._keras_shape)
 
 	#####
+	print('start of the decoder')
 	
-	decoded = Dense(256, activation='relu')(encoded)
-	decoded = Dense(12544, activation='relu')(decoded)
-	decoded = Reshape((28,28,16))(decoded) # -1 is used to infer the size of the batch
+	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_5, tie_type = 'transpose', activation='relu')(encoded)
+	print(decoded._keras_shape)
+	decoded = TiedDenseLayer(output_dim = int(((16*shape[0]*shape[1])/4)), tied_to = encoding_layer_4, tie_type = 'transpose', activation='relu')(decoded)
+	print(decoded._keras_shape)
+	decoded = Reshape((int(shape[0]/2),int(shape[1]/2),16))(decoded) 
+	print(decoded._keras_shape)
+	decoded = UpSampling2D((2, 2))(decoded)
+	print(decoded._keras_shape)
 	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
-	decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(decoded)
+	print(decoded._keras_shape)
+	decoded = Conv2D(int(shape[2]), (3, 3), activation='sigmoid', padding='same')(decoded)
+	print(decoded._keras_shape)
 	
 	#####
 
@@ -375,7 +404,8 @@ def test_tied_conv_autoencoder():
 	##########
 	encoded_input = Input(shape=(128,))
 
-	deco = autoencoder.layers[-5](encoded_input)
+	deco = autoencoder.layers[-6](encoded_input)
+	deco = autoencoder.layers[-5](deco)
 	deco = autoencoder.layers[-4](deco)
 	deco = autoencoder.layers[-3](deco)
 	deco = autoencoder.layers[-2](deco)
@@ -384,7 +414,7 @@ def test_tied_conv_autoencoder():
 
 	history = autoencoder.fit(x_train, x_train,
 				epochs=50,
-				batch_size=256,
+				batch_size=128,
 				shuffle=True,
 				validation_data=(x_test, x_test))
 
@@ -395,10 +425,10 @@ def test_tied_conv_autoencoder():
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
-	images, classes = process_mnist()
-	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images)
+	plot_loss_and_accuracy("MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Transposição", history.history)
+	# images, classes = process_mnist()
+	# save_encoded_values(tag + '_' + model_id,
+	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
 
 
 
@@ -444,7 +474,7 @@ def main1():
 	x_test = x_test.astype('float32') / 255.
 	x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
 	x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
-	test_conv_autoencoder('mnist', x_train, x_test)
+	test_only_dense_tied_conv_autoencoder('mnist', x_train, x_test)
 
 
 
@@ -490,7 +520,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main5()
+	main1()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

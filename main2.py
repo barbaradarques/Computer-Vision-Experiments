@@ -759,10 +759,10 @@ def process_mnist():
 
 
 def main6():
-	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
-	# datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
-	datasets_names = ['tropical_fruits1400']
-	datasets_path = ''
+	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	# datasets_names = ['tropical_fruits1400']
+	# datasets_path = ''
 	for dataset_name in datasets_names:
 		preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing(datasets_path, dataset_name)
 

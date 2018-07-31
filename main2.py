@@ -89,11 +89,11 @@ def test_autoencoder(tag, x_train, x_test):
 	# tb_callback = TensorBoard(log_dir='./tensorboard_logs/' + tag + '_normal_training',
 	# 							histogram_freq=1, write_graph=True, write_images=False)
 
-	history = autoencoder.fit(flat_x_train, flat_x_train,
+	history = autoencoder.fit(x_train, x_train,
 				epochs=50,
 				batch_size=256,
 				shuffle=True,
-				validation_data=(flat_x_test, flat_x_test)) # callbacks=[csv_logger, tb_callback]
+				validation_data=(x_test, x_test)) # callbacks=[csv_logger, tb_callback]
 
 	autoencoder.save('autoencoder_results/normal/' + tag + '_autoencoder.h5')
 	encoder.save('autoencoder_results/normal/' + tag + '_encoder.h5')
@@ -583,10 +583,19 @@ def main10():
 	test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
 
 
-
 def main2():	
 	history = load_training_history('autoencoder_results/only_dense_inverse_tied/mnist_history.pckl')
-	plot_loss_and_accuracy( "MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Inversas Aproximadas", history)
+	plot_loss_and_accuracy( "Fashion-MNIST - Autoencoder Convolucional com Camadas Densas Amarradas por Inversas Aproximadas", history)
+	history = load_training_history('autoencoder_results/normal/mnist_history.pckl')
+	plot_loss_and_accuracy( , history)
+	history = load_training_history('autoencoder_results/conv/mnist_history.pckl')
+	plot_loss_and_accuracy( , history)
+	history = load_training_history('autoencoder_results/tied_transpose_2_128/mnist_history.pckl')
+	plot_loss_and_accuracy( , history)
+	history = load_training_history('autoencoder_results/tied_inverse_2_128_extended/mnist_history.pckl')
+	plot_loss_and_accuracy( , history)
+	history = load_training_history('autoencoder_results/only_dense_tied_conv/mnist_history.pckl')
+	plot_loss_and_accuracy( , history)
 
 def main3():
 	(x_train, _), (x_test, y_test) = mnist.load_data()

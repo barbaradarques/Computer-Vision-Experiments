@@ -1,6 +1,8 @@
 __author__ = "Barbara Darques"
 
 import output2file as o2f
+import tensorflow as tf
+import os
 from sklearn import svm
 import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
@@ -8,6 +10,7 @@ from sklearn import datasets
 import time
 import matplotlib.pyplot as sp
 from keras.datasets import mnist
+from tensorflow.keras.datasets import fashion_mnist
 from time import gmtime, strftime
 import pickle 
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape, Conv2DTranspose
@@ -20,8 +23,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 from custom_layers import TiedDenseLayer
 from keras import backend as K
-import tensorflow as tf
-import os
+
 
 
 # tf.losses.sigmoid_cross_entropy
@@ -99,10 +101,10 @@ def test_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/normal/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder Tradicional", history.history)
-	images, classes = process_mnist()
-	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images)
+	# plot_loss_and_accuracy("MNIST Autoencoder Tradicional", history.history)
+	# images, classes = process_mnist()
+	# save_encoded_values(tag + '_' + model_id,
+						# trained_encoder=encoder, images=images)
 
 def test_conv_autoencoder(tag, x_train, x_test):
 	print("\n\n\n----- test_conv_autoencoder -----\n\n\n")
@@ -113,7 +115,7 @@ def test_conv_autoencoder(tag, x_train, x_test):
 		os.makedirs('autoencoder_results/' + model_id)
 
 
-	if tag == 'mnist':
+	if tag == 'mnist' or tag == 'fashion_mnist':
 		shape = (28, 28, 1)
 	else:
 		shape = (64, 64, 3)
@@ -181,7 +183,7 @@ def test_conv_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
+	# plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
 	# images, classes = process_mnist()
 	# save_encoded_values(tag + '_' + model_id,
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
@@ -271,10 +273,10 @@ def test_tied_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Transposição", history.history)
-	images, classes = process_mnist()
-	save_encoded_values(tag + '_' + model_id,
-						trained_encoder=encoder, images=images)
+	# plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Transposição", history.history)
+	# images, classes = process_mnist()
+	# save_encoded_values(tag + '_' + model_id,
+						# trained_encoder=encoder, images=images)
 
 
 def test_inverse_tied_autoencoder(tag, x_train, x_test):
@@ -296,8 +298,8 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 
 	#####
 	
-	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_2, tie_type = 'inverse')(encoded) # TODO PUT THE ACTIVATION BACK
-	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer_1, tie_type = 'inverse')(decoded)
+	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_2, tie_type = 'inverse', activation='relu')(encoded) 
+	decoded = TiedDenseLayer(output_dim = 784, tied_to = encoding_layer_1, tie_type = 'inverse', activation='relu')(decoded)
 
 	autoencoder = Model(input_img, decoded)
 	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
@@ -336,8 +338,8 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
-	images, classes = process_mnist()
+	# plot_loss_and_accuracy("MNIST Autoencoder 2 Camadas de Codificação Amarradas por Inversas Aproximadas - Treinamento Extendido", history.history)
+	# images, classes = process_mnist()
 	# save_encoded_values(tag + '_' + model_id,
 	# 					trained_encoder=encoder, images=images) # save manually because the inputs have been shuffled for training
 
@@ -351,7 +353,7 @@ def test_only_dense_tied_conv_autoencoder(tag, x_train, x_test):
 		os.makedirs('autoencoder_results/' + model_id)
 
 
-	if tag == 'mnist':
+	if tag == 'mnist' or tag == 'fashion_mnist':
 		shape = (28, 28, 1)
 	else:
 		shape = (64, 64, 3)
@@ -427,7 +429,7 @@ def test_only_dense_tied_conv_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Transposição", history.history)
+	# plot_loss_and_accuracy("MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Transposição", history.history)
 	# images, classes = process_mnist()
 	# save_encoded_values(tag + '_' + model_id,
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
@@ -444,7 +446,7 @@ def test_only_dense_inverse_tied_autoencoder(tag, x_train, x_test):
 		os.makedirs('autoencoder_results/' + model_id)
 
 
-	if tag == 'mnist':
+	if tag == 'mnist' or tag == 'fashion_mnist':
 		shape = (28, 28, 1)
 	else:
 		shape = (64, 64, 3)
@@ -520,7 +522,7 @@ def test_only_dense_inverse_tied_autoencoder(tag, x_train, x_test):
 	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
 		pickle.dump(history.history, pckl)
 	
-	plot_loss_and_accuracy("MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Inversas Aproximadas", history.history)
+	# plot_loss_and_accuracy("MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Inversas Aproximadas", history.history)
 	# images, classes = process_mnist()
 	# save_encoded_values(tag + '_' + model_id,
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
@@ -564,7 +566,21 @@ def main1():
 	x_test = x_test.astype('float32') / 255.
 	x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
 	x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
-	test_only_dense_inverse_tied_autoencoder('mnist', x_train, x_test)
+	test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
+	test_autoencoder('fashion_mnist', x_train, x_test)
+	test_conv_autoencoder('fashion_mnist', x_train, x_test)
+	test_tied_autoencoder('fashion_mnist', x_train, x_test)
+	test_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
+	test_only_dense_tied_conv_autoencoder('fashion_mnist', x_train, x_test)
+
+def main10():
+	(x_train, _), (x_test, y_test) = fashion_mnist.load_data()
+	print("x_train shape:", x_train.shape)
+	x_train = x_train.astype('float32') / 255.
+	x_test = x_test.astype('float32') / 255.
+	x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
+	x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
+	test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
 
 
 

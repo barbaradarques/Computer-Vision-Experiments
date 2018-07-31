@@ -796,33 +796,49 @@ def main2():
 	history = load_training_history('autoencoder_results/only_dense_tied_conv/fashion_mnist_history.pckl')
 	plot_loss_and_accuracy("Fashion-MNIST - Autoencoder Convolucional com Camadas Densas Amarradas por Transposição" , history)
 
+
+def main20():	
+	history = load_training_history('autoencoder_results/2_conv_layers/17flowers_history.pckl')
+	plot_loss_and_accuracy("Flowers - Autoencoder Convolucional com 2 Camadas Convolucionais de Codificação", history)
+	
+	history = load_training_history('autoencoder_results/2_conv_layers/coil-20_history.pckl')
+	plot_loss_and_accuracy("COIL-20 - Autoencoder Convolucional com 2 Camadas Convolucionais de Codificação", history)
+	
+	history = load_training_history('autoencoder_results/2_conv_layers/corel-1000_history.pckl')
+	plot_loss_and_accuracy("COREL 1000 - Autoencoder Convolucional com 2 Camadas Convolucionais de Codificação", history)
+	
+	history = load_training_history('autoencoder_results/2_conv_layers/tropical_fruits1400_history.pckl')
+	plot_loss_and_accuracy("Tripical Fruits - Autoencoder Convolucional com 2 Camadas Convolucionais de Codificação", history)
+	
+
 def main3():
 	(x_train, _), (x_test, y_test) = mnist.load_data()
 	x_train, x_test = flatten_input(x_train, x_test)
 	test_inverse_tied_autoencoder('mnist', x_train, x_test)
 
 def main4():
-	encoder = load_trained_model('autoencoder_results/conv/mnist_encoder.h5')
-	images, classes = process_mnist()
-	images = images.astype('float32') / 255.
-	images = np.reshape(images, (len(images), 28, 28, 1))
-	
-	save_encoded_values('mnist_conv',
-						trained_encoder=encoder, images=images)
-
-def main5():
-	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
 	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
 	# datasets_names = ['tropical_fruits1400']
-	# datasets_path = ''
 	for dataset_name in datasets_names:
-		preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name, target_size=64)
-		print(preprocessed_imgs.shape)
-		x_train, x_test = train_test_split(preprocessed_imgs)
-		x_train = x_train.astype('float32') / 255.
-		x_test = x_test.astype('float32') / 255.
-		print("input was shuffled...")
-		test_conv_autoencoder(dataset_name, x_train, x_test)
+		encoder = load_trained_model('autoencoder_results/2_conv_layers/' + dataset_name + '_encoder.h5')
+		preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing(datasets_path, dataset_name)
+		preprocessed_imgs = preprocessed_imgs.astype('float32') / 255.
+		save_encoded_values(dataset_name,
+						trained_encoder=encoder, images=preprocessed_imgs)
+
+def main5():
+	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	# datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	# # datasets_names = ['tropical_fruits1400']
+	# # datasets_path = ''
+	# for dataset_name in datasets_names:
+	# 	preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name, target_size=64)
+	# 	print(preprocessed_imgs.shape)
+	# 	x_train, x_test = train_test_split(preprocessed_imgs)
+	# 	x_train = x_train.astype('float32') / 255.
+	# 	x_test = x_test.astype('float32') / 255.
+	# 	print("input was shuffled...")
+	# 	test_conv_autoencoder(dataset_name, x_train, x_test)
 
 
 def process_mnist():
@@ -854,7 +870,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main1()
+	main4()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

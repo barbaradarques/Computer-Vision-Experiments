@@ -826,7 +826,7 @@ def main4():
 		save_encoded_values(dataset_name,
 						trained_encoder=encoder, images=preprocessed_imgs)
 
-def main5():
+# def main5():
 	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
 	# datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
 	# # datasets_names = ['tropical_fruits1400']

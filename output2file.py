@@ -91,7 +91,7 @@ def centered_square_batch_preprocessing(datasets_path, dataset_name, **kwargs):
 		new_size = 64
 
 		for img_name in imgs_names: # <<<<<<<<<<<<< 
-			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(target_size, target_size))
+			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(target_size, target_size)).convert('L')
 
 			width, height = img.size
 			new_height = new_width = min(width, height)

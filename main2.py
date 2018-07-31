@@ -528,10 +528,10 @@ def test_only_dense_inverse_tied_autoencoder(tag, x_train, x_test):
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
 
 
-def test_2_conv_layers_autoencoder(tag, x_train, x_test):
-	print("\n\n\n----- test_2_conv_layers_autoencoder -----\n\n\n")
+def test_3_conv_layers_autoencoder(tag, x_train, x_test):
+	print("\n\n\n----- test_3_conv_layers_autoencoder -----\n\n\n")
 
-	model_id = '2_conv_layers'
+	model_id = '3_conv_layers'
 	
 	if not os.path.exists('autoencoder_results/' + model_id):
 		os.makedirs('autoencoder_results/' + model_id)
@@ -540,7 +540,7 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 	if tag == 'mnist' or tag == 'fashion_mnist':
 		shape = (28, 28, 1)
 	else:
-		shape = (64, 64, 3)
+		shape = (64, 64, 1)
 
 	input_img = Input(shape=shape)
 
@@ -840,19 +840,19 @@ def process_mnist():
 
 
 def main6():
-	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
-	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
-	# datasets_names = ['tropical_fruits1400']
-	# datasets_path = ''
+	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	# datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	datasets_names = ['tropical_fruits1400']
+	datasets_path = ''
 	for dataset_name in datasets_names:
 		preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing(datasets_path, dataset_name)
 
-		print(preprocessed_imgs[0].shape)
+		# print(preprocessed_imgs[0][0])
 		x_train, x_test = train_test_split(preprocessed_imgs)
 		x_train = x_train.astype('float32') / 255.
 		x_test = x_test.astype('float32') / 255.
 		print("input was shuffled...")
-		test_2_conv_layers_autoencoder(dataset_name, x_train, x_test)
+		test_3_conv_layers_autoencoder(dataset_name, x_train, x_test)
 
 
 if __name__ == '__main__':

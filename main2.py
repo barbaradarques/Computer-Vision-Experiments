@@ -259,11 +259,11 @@ def test_tied_autoencoder(tag, x_train, x_test):
 	# tb_callback = TensorBoard(log_dir='./tensorboard_logs/' + tag + '_normal_training',
 	# 							histogram_freq=1, write_graph=True, write_images=False)
 
-	history = autoencoder.fit(flat_x_train, flat_x_train,
+	history = autoencoder.fit(x_train, x_train,
 				epochs=50,
 				batch_size=256,
 				shuffle=True,
-				validation_data=(flat_x_test, flat_x_test)) # callbacks=[csv_logger, tb_callback]
+				validation_data=(x_test, x_test)) # callbacks=[csv_logger, tb_callback]
 
 	
 	autoencoder.save('autoencoder_results/' + model_id + '/' + tag + '_autoencoder.h5')
@@ -318,17 +318,17 @@ def test_inverse_tied_autoencoder(tag, x_train, x_test):
 
 	##########
 
-	flat_x_train, flat_x_test = flatten_input(x_train, x_test)
+	# flat_x_train, flat_x_test = flatten_input(x_train, x_test)
 
 	# csv_logger = CSVLogger('autoencoder_results/' + tag + '_normal_training.log')
 	# tb_callback = TensorBoard(log_dir='./tensorboard_logs/' + tag + '_normal_training',
 	# 							histogram_freq=1, write_graph=True, write_images=False)
 
-	history = autoencoder.fit(flat_x_train, flat_x_train,
+	history = autoencoder.fit(x_train, x_train,
 				epochs=100,
 				batch_size=256,
 				shuffle=True,
-				validation_data=(flat_x_test, flat_x_test)) # callbacks=[csv_logger, tb_callback]
+				validation_data=(x_test, x_test)) # callbacks=[csv_logger, tb_callback]
 
 	
 	autoencoder.save('autoencoder_results/' + model_id + '/' + tag + '_autoencoder.h5')

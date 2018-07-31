@@ -768,7 +768,7 @@ def main1():
 
 	# test_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	# test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
-	test_conv_autoencoder('fashion_mnist', x_train, x_test)
+	test_3_conv_layers_autoencoder('fashion_mnist', x_train, x_test)
 	# test_tied_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	# test_inverse_tied_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	# test_only_dense_tied_conv_autoencoder('fashion_mnist', x_train, x_test)
@@ -840,10 +840,10 @@ def process_mnist():
 
 
 def main6():
-	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
-	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
-	# datasets_names = ['tropical_fruits1400']
-	# datasets_path = ''
+	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	# datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	datasets_names = ['tropical_fruits1400']
+	datasets_path = ''
 	for dataset_name in datasets_names:
 		preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing(datasets_path, dataset_name)
 
@@ -860,7 +860,7 @@ if __name__ == '__main__':
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main6()
+	main1()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

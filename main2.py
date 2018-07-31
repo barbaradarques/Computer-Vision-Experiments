@@ -549,14 +549,6 @@ def test_3_conv_layers_autoencoder(tag, x_train, x_test):
 	
 	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
 	print(encoded._keras_shape)
-
-	# encoded = BatchNormalization()(encoded)
-
-	# encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
-	# print(encoded._keras_shape)
-	
-	# encoded = MaxPooling2D((2, 2), padding='same')(encoded)
-	# print(encoded._keras_shape)
 	
 	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
 	print(encoded._keras_shape)
@@ -635,7 +627,7 @@ def test_3_conv_layers_autoencoder(tag, x_train, x_test):
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
 
 
-def test_only_dense_tied_2_layer_conv_autoencoder(tag, x_train, x_test):
+def test_only_dense_tied_3_layer_conv_autoencoder(tag, x_train, x_test):
 	print("\n\n\n----- test_only_dense_tied_conv_autoencoder -----\n\n\n")
 
 	model_id = 'only_dense_tied_conv'
@@ -653,6 +645,8 @@ def test_only_dense_tied_2_layer_conv_autoencoder(tag, x_train, x_test):
 
 	encoding_layer_1 = Conv2D(16, (3, 3), activation='relu', padding='same')
 	encoding_layer_2 = MaxPooling2D((2, 2), padding='same')
+	encoding_layer_extra_1 = Conv2D(8, (3, 3), activation='relu', padding='same')
+	encoding_layer_extra_2 = MaxPooling2D((2, 2), padding='same')
 	encoding_layer_3 = Flatten()
 	encoding_layer_4 = Dense(256, activation='relu')
 	encoding_layer_5 = Dense(128, activation='relu')
@@ -768,7 +762,7 @@ def main1():
 
 	# test_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	# test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
-	test_3_conv_layers_autoencoder('fashion_mnist', x_train, x_test)
+	test_only_dense_tied_3_layer_conv_autoencoder('fashion_mnist', x_train, x_test)
 	# test_tied_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	# test_inverse_tied_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	# test_only_dense_tied_conv_autoencoder('fashion_mnist', x_train, x_test)

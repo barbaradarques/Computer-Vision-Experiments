@@ -825,7 +825,8 @@ def main4():
 		preprocessed_imgs = preprocessed_imgs.astype('float32') / 255.
 		output = save_encoded_values(dataset_name,
 						trained_encoder=encoder, images=preprocessed_imgs)
-		test_results_on_linear_SVC(output, imgs_classes, dataset_name)
+		test_results_on_poly_SVC(output, imgs_classes, dataset_name)
+		test_results_on_rbf_SVC(output, imgs_classes, dataset_name)
 
 # def main5():
 	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
@@ -866,16 +867,33 @@ def main6():
 		test_3_conv_layers_autoencoder(dataset_name, x_train, x_test)
 
 
-def test_results_on_linear_SVC(values, classes, dataset_name):
+def test_results_on_rbf_SVC(values, classes, dataset_name):
 	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
 
 	print('saving linear results... for '+ dataset_name) 
-	with open('autoencoder_svm_performance/' + dataset_name + '_linear.csv','w') as file:
+	with open('autoencoder_svm_performance/' + dataset_name + '_rbf.csv','w') as file:
 		# file.write('# <cost>, <accuracy score vector>\n')
 		# for i in range(11):
 		# 	print(i) # <<<<<
 			# cost = 1 << i # penalty
-		clf = svm.SVC(kernel = 'linear', C = 1)
+		clf = svm.SVC(kernel = 'rbf')
+		scores = cross_val_score(clf, values, classes, cv = 10)
+		scores_str = ",".join(str(i) for i in scores)
+		file.write(scores_str + '\n')
+			# ====================================
+		# 	plot_linear(clf, values, classes, False, i)
+		# plt.show() # it's needed once 'show' is set to False in plot_linear <<<<
+
+def test_results_on_poly_SVC(values, classes, dataset_name):
+	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
+
+	print('saving linear results... for '+ dataset_name) 
+	with open('autoencoder_svm_performance/' + dataset_name + '_poly.csv','w') as file:
+		# file.write('# <cost>, <accuracy score vector>\n')
+		# for i in range(11):
+		# 	print(i) # <<<<<
+			# cost = 1 << i # penalty
+		clf = svm.SVC(kernel = 'poly')
 		scores = cross_val_score(clf, values, classes, cv = 10)
 		scores_str = ",".join(str(i) for i in scores)
 		file.write(scores_str + '\n')

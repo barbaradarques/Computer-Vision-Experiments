@@ -562,15 +562,19 @@ def load_trained_model(filename):
 
 def main1():
 	(x_train, _), (x_test, y_test) = fashion_mnist.load_data()
+
+	flat_x_train, flat_x_test = flatten_input(x_train, x_test)
+
 	x_train = x_train.astype('float32') / 255.
 	x_test = x_test.astype('float32') / 255.
 	x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
 	x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
+
+	test_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
-	test_autoencoder('fashion_mnist', x_train, x_test)
 	test_conv_autoencoder('fashion_mnist', x_train, x_test)
-	test_tied_autoencoder('fashion_mnist', x_train, x_test)
-	test_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
+	test_tied_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
+	test_inverse_tied_autoencoder('fashion_mnist', flat_x_train, flat_x_test)
 	test_only_dense_tied_conv_autoencoder('fashion_mnist', x_train, x_test)
 
 def main10():
@@ -583,19 +587,24 @@ def main10():
 	test_only_dense_inverse_tied_autoencoder('fashion_mnist', x_train, x_test)
 
 
-# def main2():	
-# 	history = load_training_history('autoencoder_results/only_dense_inverse_tied/mnist_history.pckl')
-# 	plot_loss_and_accuracy( "Fashion-MNIST - Autoencoder Convolucional com Camadas Densas Amarradas por Inversas Aproximadas", history)
-# 	history = load_training_history('autoencoder_results/normal/mnist_history.pckl')
-# 	plot_loss_and_accuracy( , history)
-# 	history = load_training_history('autoencoder_results/conv/mnist_history.pckl')
-# 	plot_loss_and_accuracy( , history)
-# 	history = load_training_history('autoencoder_results/tied_transpose_2_128/mnist_history.pckl')
-# 	plot_loss_and_accuracy( , history)
-# 	history = load_training_history('autoencoder_results/tied_inverse_2_128_extended/mnist_history.pckl')
-# 	plot_loss_and_accuracy( , history)
-# 	history = load_training_history('autoencoder_results/only_dense_tied_conv/mnist_history.pckl')
-# 	plot_loss_and_accuracy( , history)
+def main2():	
+	history = load_training_history('autoencoder_results/only_dense_inverse_tied/mnist_history.pckl')
+	plot_loss_and_accuracy("Fashion-MNIST - Autoencoder Convolucional com Camadas Densas Amarradas por Inversas Aproximadas", history)
+	
+	history = load_training_history('autoencoder_results/normal/mnist_history.pckl')
+	plot_loss_and_accuracy("Fashion-MNIST - Autoencoder Tradicional sem Amarração de Pesos" , history)
+	
+	history = load_training_history('autoencoder_results/conv/mnist_history.pckl')
+	plot_loss_and_accuracy( "Fashion-MNIST - Autoencoder Convolucional sem Amarração de Pesos", history)
+	
+	history = load_training_history('autoencoder_results/tied_transpose_2_128/mnist_history.pckl')
+	plot_loss_and_accuracy("Fashion-MNIST - Autoencoder Convolucional com Camadas Amarradas por Transposição" , history)
+	
+	history = load_training_history('autoencoder_results/tied_inverse_2_128_extended/mnist_history.pckl')
+	plot_loss_and_accuracy("Fashion-MNIST - Autoencoder Tradicional com Camadas Amarradas por Inversas Aproximadas" , history)
+	
+	history = load_training_history('autoencoder_results/only_dense_tied_conv/mnist_history.pckl')
+	plot_loss_and_accuracy("Fashion-MNIST - Autoencoder Convolucional com Camadas Densas Amarradas por Transposição" , history)
 
 def main3():
 	(x_train, _), (x_test, y_test) = mnist.load_data()

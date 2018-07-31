@@ -561,7 +561,7 @@ def load_trained_model(filename):
 
 
 def main1():
-	(x_train, _), (x_test, y_test) = mnist.load_data()
+	(x_train, _), (x_test, y_test) = fashion_mnist.load_data()
 	x_train = x_train.astype('float32') / 255.
 	x_test = x_test.astype('float32') / 255.
 	x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
@@ -574,7 +574,7 @@ def main1():
 	test_only_dense_tied_conv_autoencoder('fashion_mnist', x_train, x_test)
 
 def main10():
-	(x_train, _), (x_test, y_test) = fashion_mnist.load_data()
+	(x_train, _), (x_test, y_test) = mnist.load_data()
 	print("x_train shape:", x_train.shape)
 	x_train = x_train.astype('float32') / 255.
 	x_test = x_test.astype('float32') / 255.

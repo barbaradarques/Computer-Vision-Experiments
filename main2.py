@@ -549,8 +549,14 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 	
 	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
 	print(encoded._keras_shape)
+
+	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+	print(encoded._keras_shape)
 	
-	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(input_img)
+	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
+	print(encoded._keras_shape)
+	
+	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
 	print(encoded._keras_shape)
 	
 	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
@@ -576,12 +582,18 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 	
 	decoded = Reshape((int(shape[0]/2),int(shape[1]/2),16))(decoded) 
 	print(decoded._keras_shape)
+
+	# decoded = UpSampling2D((2, 2))(decoded)
+	# print(decoded._keras_shape)
 	
-	decoded = UpSampling2D((2, 2))(decoded)
-	print(decoded._keras_shape)
+	# decoded = Conv2D(8, (3, 3), activation='relu', padding='same')(decoded)
+	# print(decoded._keras_shape)
 	
-	decoded = Conv2D(8, (3, 3), activation='relu', padding='same')(decoded)
-	print(decoded._keras_shape)
+	# decoded = UpSampling2D((2, 2))(decoded)
+	# print(decoded._keras_shape)
+	
+	# decoded = Conv2D(8, (3, 3), activation='relu', padding='same')(decoded)
+	# print(decoded._keras_shape)
 
 	decoded = UpSampling2D((2, 2))(decoded)
 	print(decoded._keras_shape)
@@ -745,12 +757,17 @@ def process_mnist():
 
 
 def main6():
-	preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing('', 'tropical_fruits1400')
+	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	# datasets_names = ['tropical_fruits1400']
+	# datasets_path = ''
+	for dataset_name in datasets_names:
+		preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing(datasets_path, dataset_name)
 
-	print(preprocessed_imgs[0].shape)
-	x_train, x_test = train_test_split(preprocessed_imgs)
-	print("input was shuffled...")
-	test_2_conv_layers_autoencoder('tropical_fruits1400', x_train, x_test)
+		print(preprocessed_imgs[0].shape)
+		x_train, x_test = train_test_split(preprocessed_imgs)
+		print("input was shuffled...")
+		test_2_conv_layers_autoencoder(dataset_name, x_train, x_test)
 
 
 if __name__ == '__main__':

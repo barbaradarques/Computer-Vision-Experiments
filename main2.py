@@ -552,11 +552,11 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 
 	# encoded = BatchNormalization()(encoded)
 
-	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
-	print(encoded._keras_shape)
+	# encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+	# print(encoded._keras_shape)
 	
-	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
-	print(encoded._keras_shape)
+	# encoded = MaxPooling2D((2, 2), padding='same')(encoded)
+	# print(encoded._keras_shape)
 	
 	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
 	print(encoded._keras_shape)
@@ -584,18 +584,6 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 	
 	decoded = Reshape((int(shape[0]/2),int(shape[1]/2),16))(decoded) 
 	print(decoded._keras_shape)
-
-	# decoded = UpSampling2D((2, 2))(decoded)
-	# print(decoded._keras_shape)
-	
-	# decoded = Conv2D(8, (3, 3), activation='relu', padding='same')(decoded)
-	# print(decoded._keras_shape)
-	
-	# decoded = UpSampling2D((2, 2))(decoded)
-	# print(decoded._keras_shape)
-	
-	# decoded = Conv2D(8, (3, 3), activation='relu', padding='same')(decoded)
-	# print(decoded._keras_shape)
 
 	decoded = UpSampling2D((2, 2))(decoded)
 	print(decoded._keras_shape)
@@ -642,6 +630,97 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 		pickle.dump(history.history, pckl)
 	
 	# plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
+	# images, classes = process_mnist()
+	# save_encoded_values(tag + '_' + model_id,
+	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
+
+
+def test_only_dense_tied_2_layer_conv_autoencoder(tag, x_train, x_test):
+	print("\n\n\n----- test_only_dense_tied_conv_autoencoder -----\n\n\n")
+
+	model_id = 'only_dense_tied_conv'
+	
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
+
+
+	if tag == 'mnist' or tag == 'fashion_mnist':
+		shape = (28, 28, 1)
+	else:
+		shape = (64, 64, 3)
+
+	input_img = Input(shape=shape)
+
+	encoding_layer_1 = Conv2D(16, (3, 3), activation='relu', padding='same')
+	encoding_layer_2 = MaxPooling2D((2, 2), padding='same')
+	encoding_layer_3 = Flatten()
+	encoding_layer_4 = Dense(256, activation='relu')
+	encoding_layer_5 = Dense(128, activation='relu')
+
+
+	encoded = encoding_layer_1(input_img)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_2(encoded)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_3(encoded)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_4(encoded)
+	print(encoded._keras_shape)
+	encoded = encoding_layer_5(encoded)
+	print(encoded._keras_shape)
+
+	#####
+	print('start of the decoder')
+	
+	decoded = TiedDenseLayer(output_dim = 256, tied_to = encoding_layer_5, tie_type = 'transpose', activation='relu')(encoded)
+	print(decoded._keras_shape)
+	decoded = TiedDenseLayer(output_dim = int(((16*shape[0]*shape[1])/4)), tied_to = encoding_layer_4, tie_type = 'transpose', activation='relu')(decoded)
+	print(decoded._keras_shape)
+	decoded = Reshape((int(shape[0]/2),int(shape[1]/2),16))(decoded) 
+	print(decoded._keras_shape)
+	decoded = UpSampling2D((2, 2))(decoded)
+	print(decoded._keras_shape)
+	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
+	print(decoded._keras_shape)
+	decoded = Conv2D(int(shape[2]), (3, 3), activation='sigmoid', padding='same')(decoded)
+	print(decoded._keras_shape)
+	
+	#####
+
+	autoencoder = Model(input_img, decoded)
+
+	autoencoder.summary()
+	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+
+	##########
+
+	encoder = Model(input_img, encoded)
+
+	##########
+	encoded_input = Input(shape=(128,))
+
+	deco = autoencoder.layers[-6](encoded_input)
+	deco = autoencoder.layers[-5](deco)
+	deco = autoencoder.layers[-4](deco)
+	deco = autoencoder.layers[-3](deco)
+	deco = autoencoder.layers[-2](deco)
+	deco = autoencoder.layers[-1](deco)
+	decoder = Model(encoded_input, deco)
+
+	history = autoencoder.fit(x_train, x_train,
+				epochs=50,
+				batch_size=128,
+				shuffle=True,
+				validation_data=(x_test, x_test))
+
+	autoencoder.save('autoencoder_results/' + model_id + '/' + tag + '_autoencoder.h5')
+	encoder.save('autoencoder_results/' + model_id + '/' + tag + '_encoder.h5')
+	decoder.save('autoencoder_results/' + model_id + '/' + tag + '_decoder.h5')
+
+	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
+		pickle.dump(history.history, pckl)
+	
+	# plot_loss_and_accuracy("MNIST Autoencoder Convolucional com Camadas Densas Amarradas por Transposição", history.history)
 	# images, classes = process_mnist()
 	# save_encoded_values(tag + '_' + model_id,
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training

@@ -54,7 +54,7 @@ from keras import backend as K
 
 def test_autoencoder(tag, x_train, x_test):
 	print("----- test_autoencoder -----")
-
+	model_id = 'normal'
 	if not os.path.exists('autoencoder_results/' + model_id):
 		os.makedirs('autoencoder_results/' + model_id)
 

@@ -528,6 +528,109 @@ def test_only_dense_inverse_tied_autoencoder(tag, x_train, x_test):
 	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
 
 
+def test_2_conv_layers_autoencoder(tag, x_train, x_test):
+	print("\n\n\n----- test_2_conv_layers_autoencoder -----\n\n\n")
+
+	model_id = '2_conv_layers'
+	
+	if not os.path.exists('autoencoder_results/' + model_id):
+		os.makedirs('autoencoder_results/' + model_id)
+
+
+	if tag == 'mnist' or tag == 'fashion_mnist':
+		shape = (28, 28, 1)
+	else:
+		shape = (64, 64, 3)
+
+	input_img = Input(shape=shape)
+
+	encoded = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+	print(encoded._keras_shape)
+	
+	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
+	print(encoded._keras_shape)
+	
+	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(input_img)
+	print(encoded._keras_shape)
+	
+	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
+	print(encoded._keras_shape)
+	
+	encoded = Flatten()(encoded)
+	print(encoded._keras_shape)
+	
+	encoded = Dense(256, activation='relu')(encoded)
+	print(encoded._keras_shape)
+	
+	encoded = Dense(128, activation='relu')(encoded)
+	print(encoded._keras_shape)
+
+	#####
+	print('start of the decoder')
+	
+	decoded = Dense(256, activation='relu')(encoded)
+	print(decoded._keras_shape)
+	
+	decoded = Dense(int(((16*shape[0]*shape[1])/4)), activation='relu')(decoded)
+	print(decoded._keras_shape)
+	
+	decoded = Reshape((int(shape[0]/2),int(shape[1]/2),16))(decoded) 
+	print(decoded._keras_shape)
+	
+	decoded = UpSampling2D((2, 2))(decoded)
+	print(decoded._keras_shape)
+	
+	decoded = Conv2D(8, (3, 3), activation='relu', padding='same')(decoded)
+	print(decoded._keras_shape)
+
+	decoded = UpSampling2D((2, 2))(decoded)
+	print(decoded._keras_shape)
+	
+	decoded = Conv2D(16, (3, 3), activation='relu', padding='same')(decoded)
+	print(decoded._keras_shape)
+	
+	decoded = Conv2D(int(shape[2]), (3, 3), activation='sigmoid', padding='same')(decoded)
+	print(decoded._keras_shape)
+	
+	#####
+
+	autoencoder = Model(input_img, decoded)
+
+	autoencoder.summary()
+	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+
+	##########
+
+	encoder = Model(input_img, encoded)
+
+	##########
+	encoded_input = Input(shape=(128,))
+
+	deco = autoencoder.layers[-6](encoded_input)
+	deco = autoencoder.layers[-5](deco)
+	deco = autoencoder.layers[-4](deco)
+	deco = autoencoder.layers[-3](deco)
+	deco = autoencoder.layers[-2](deco)
+	deco = autoencoder.layers[-1](deco)
+	decoder = Model(encoded_input, deco)
+
+	history = autoencoder.fit(x_train, x_train,
+				epochs=100,
+				batch_size=128,
+				shuffle=True,
+				validation_data=(x_test, x_test))
+
+	autoencoder.save('autoencoder_results/' + model_id + '/' + tag + '_autoencoder.h5')
+	encoder.save('autoencoder_results/' + model_id + '/' + tag + '_encoder.h5')
+	decoder.save('autoencoder_results/' + model_id + '/' + tag + '_decoder.h5')
+
+	with open('autoencoder_results/' + model_id + '/' + tag + "_history.pckl", 'wb') as pckl:
+		pickle.dump(history.history, pckl)
+	
+	# plot_loss_and_accuracy("MNIST Autoencoder Convolucional sem Amarração", history.history)
+	# images, classes = process_mnist()
+	# save_encoded_values(tag + '_' + model_id,
+	# 					trained_encoder=encoder, images=images) # save manually because the input was shuffled for training
 
 
 def plot_loss_and_accuracy(tag, history):
@@ -639,12 +742,23 @@ def process_mnist():
 	classes = np.concatenate([y_train, y_test])
 	return images, classes
 
+
+
+def main6():
+	preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing('', 'tropical_fruits1400')
+
+	print(preprocessed_imgs[0].shape)
+	x_train, x_test = train_test_split(preprocessed_imgs)
+	print("input was shuffled...")
+	test_2_conv_layers_autoencoder('tropical_fruits1400', x_train, x_test)
+
+
 if __name__ == '__main__':
 	print("\n\n\n\nStarting...\n\n\n\n")
 	np.random.seed(1) # a fixed seed guarantees results reproducibility 
 	start_time = time.time()
 
-	main1()
+	main6()
 	# print(K.image_data_format())
 
 	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))

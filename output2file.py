@@ -13,7 +13,7 @@ from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
 from keras.models import Model
-
+from PIL import Image
 
 def save_data(filename, imgs_names, output_values, imgs_classes, **kwargs):
 	'''
@@ -64,6 +64,53 @@ def load_data(filename, separator):
 	values = data[:, 1:-1].astype('float64')
 	return names, values, classes
 
+def centered_square_batch_preprocessing(datasets_path, dataset_name, **kwargs): 
+	print(datasets_path + dataset_name)
+	subdirs = next(os.walk(datasets_path + dataset_name))[1] # returns all the subdirectories inside Produce_1400
+	# print(subdirs)
+	all_imgs = []
+	all_imgs_names = []
+	all_imgs_classes = []
+
+	if 'target_size' in kwargs:
+		target_size = kwargs['target_size']
+	else:
+		target_size = 224
+
+	if 'start_subdir' in kwargs and 'end_subdir' in kwargs:
+		start = kwargs['start_subdir']
+		end = kwargs['end_subdir']
+		subdirs = subdirs[start:end]
+	for subdir in subdirs:
+		imgs_names = [subdir+'/'+img for img in os.listdir(datasets_path + dataset_name +'/'+subdir) if img.endswith('.jpg') or img.endswith('.png')]
+		imgs_classes = np.empty(len(imgs_names), dtype=np.str)
+		imgs_classes.fill(subdir) # as the classes are separated by subdirectories, class name = subdir name
+		all_imgs_classes.extend(imgs_classes) # <<<<<<<<<<<<< 
+		all_imgs_names.extend(imgs_names) # <<<<<<<<<<<<< 
+
+		new_size = 64
+
+		for img_name in imgs_names: # <<<<<<<<<<<<< 
+			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(target_size, target_size))
+
+			width, height = img.size
+			new_height = new_width = min(width, height)
+
+			left = (width - new_width)/2
+			top = (height - new_height)/2
+			right = (width + new_width)/2
+			bottom = (height + new_height)/2
+
+			img.crop((left, top, right, bottom))
+			img = img.resize((new_size, new_size))
+			img = image.img_to_array(img)
+			all_imgs.append(img) # note that extend and append are different!
+
+	# preprocessed_imgs = preprocess_input(np.array(all_imgs))
+	preprocessed_imgs  = np.array(all_imgs)
+
+	return preprocessed_imgs, all_imgs_names, all_imgs_classes
+
 def batch_preprocessing(datasets_path, dataset_name, **kwargs): 
 	print(datasets_path + dataset_name)
 	subdirs = next(os.walk(datasets_path + dataset_name))[1] # returns all the subdirectories inside Produce_1400
@@ -88,7 +135,7 @@ def batch_preprocessing(datasets_path, dataset_name, **kwargs):
 		all_imgs_classes.extend(imgs_classes) # <<<<<<<<<<<<< 
 		all_imgs_names.extend(imgs_names) # <<<<<<<<<<<<< 
 		for img_name in imgs_names: # <<<<<<<<<<<<< 
-			img = image.load_img(datasets_path + dataset_name +'/'+img_name, target_size=(target_size, target_size))
+			img = image.load_img(datasets_path + dataset_name +'/'+img_name)
 			img = image.img_to_array(img)
 			all_imgs.append(img) # note that extend and append are different!
 

@@ -25,7 +25,6 @@ from custom_layers import TiedDenseLayer
 from keras import backend as K
 
 
-
 # tf.losses.sigmoid_cross_entropy
 
 # def main1():
@@ -210,6 +209,7 @@ def save_encoded_values(tag, trained_encoder, images):
 	pickle.dump(output, open('autoencoder_results/encoded_outputs/' + tag +".pckl", "wb")) # just for safety
 
 	np.savetxt('autoencoder_results/encoded_outputs/' + tag + ".csv", output, delimiter=",")
+	return output
 	
 	
 
@@ -823,8 +823,9 @@ def main4():
 		encoder = load_trained_model('autoencoder_results/2_conv_layers/' + dataset_name + '_encoder.h5')
 		preprocessed_imgs, imgs_names, imgs_classes = o2f.centered_square_batch_preprocessing(datasets_path, dataset_name)
 		preprocessed_imgs = preprocessed_imgs.astype('float32') / 255.
-		save_encoded_values(dataset_name,
+		output = save_encoded_values(dataset_name,
 						trained_encoder=encoder, images=preprocessed_imgs)
+		test_results_on_linear_SVC(output, imgs_classes, dataset_name)
 
 # def main5():
 	# datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
@@ -863,6 +864,24 @@ def main6():
 		x_test = x_test.astype('float32') / 255.
 		print("input was shuffled...")
 		test_3_conv_layers_autoencoder(dataset_name, x_train, x_test)
+
+
+def test_results_on_linear_SVC(values, classes, dataset_name):
+	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
+
+	print('saving linear results... for '+ dataset_name) 
+	with open('autoencoder_svm_performance/' + dataset_name + '_linear.csv','w') as file:
+		# file.write('# <cost>, <accuracy score vector>\n')
+		# for i in range(11):
+		# 	print(i) # <<<<<
+			# cost = 1 << i # penalty
+		clf = svm.SVC(kernel = 'linear', C = 1)
+		scores = cross_val_score(clf, values, classes, cv = 10)
+		scores_str = ",".join(str(i) for i in scores)
+		file.write(scores_str + '\n')
+			# ====================================
+		# 	plot_linear(clf, values, classes, False, i)
+		# plt.show() # it's needed once 'show' is set to False in plot_linear <<<<
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ from keras.datasets import mnist
 from tensorflow.keras.datasets import fashion_mnist
 from time import gmtime, strftime
 import pickle 
-from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape, Conv2DTranspose
+from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape, Conv2DTranspose, BatchNormalization
 from keras.models import Model, load_model
 from keras.callbacks import CSVLogger, TensorBoard
 from sklearn.model_selection import train_test_split
@@ -550,6 +550,8 @@ def test_2_conv_layers_autoencoder(tag, x_train, x_test):
 	encoded = MaxPooling2D((2, 2), padding='same')(encoded)
 	print(encoded._keras_shape)
 
+	# encoded = BatchNormalization()(encoded)
+
 	encoded = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
 	print(encoded._keras_shape)
 	
@@ -768,6 +770,8 @@ def main6():
 
 		print(preprocessed_imgs[0].shape)
 		x_train, x_test = train_test_split(preprocessed_imgs)
+		x_train = x_train.astype('float32') / 255.
+		x_test = x_test.astype('float32') / 255.
 		print("input was shuffled...")
 		test_2_conv_layers_autoencoder(dataset_name, x_train, x_test)
 

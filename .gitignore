@@ -3,3 +3,5 @@ __pycache__/
 autoencoder_results/encoded_outputs/*
 autoencoder_results/*/*.h5
 tropical_fruits1400/
+misc/
+*.pyc

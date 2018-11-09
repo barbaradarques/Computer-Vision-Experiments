@@ -1,119 +1,118 @@
-__author__ = "Barbara Darques"
-
+import os
+import numpy as np
+import time
+from keras.applications.vgg16 import VGG16
+from keras.preprocessing import image
+from keras.applications.vgg16 import preprocess_input, decode_predictions
+from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
+from keras.models import Model
 import output2file as o2f
 from sklearn import svm
-import numpy as np
-from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
-from sklearn import datasets
-import time
-import matplotlib.pyplot as plt
+import svm_tests
+import dim_reduction
+import boxplot
+from sklearn.model_selection import train_test_split
 
-def load_accuracy_file(filename, separator):
-	data = []
-	with open(filename,'r') as input_file:
-		for line in input_file.readlines():
-			data.append(line.replace('\n','').split(separator))
-	data = np.array(data)
-	params = data[:, 0].astype("float64")  # parameter being changed along the test
-	acc_vect = data[:, 1:].astype("float64") 
-	return params, acc_vect
 
-def test_linear_SVC_params(dataset_name, layer_name):
-	names, values, classes = o2f.load_data('outputs/' + dataset_name +'/' + layer_name +'.txt', " ")
-	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
+def main_cub():
+	np.random.seed(1) # a fixed seed guarantees results reproducibility 
+	start_time = time.time()
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
+	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	# datasets_names = ['17flowers', 'coil-20', 'corel-1000',  'CUB_200_2011', 'tropical_fruits1400']
+	datasets_names = ['CUB_200_2011']
+	for dataset_name in datasets_names:
+		for subdir_idx in range(200): # processes each class/subdirectory at a time, because the dataset is too big for being processe all at once 
+			preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name, start_subdir = subdir_idx, end_subdir = (subdir_idx + 1))
+			layers_outputs = o2f.get_layers_outputs(cnn, layers_names, preprocessed_imgs) 
 
-	print('saving linear results...') 
-	# with open('svm_performance/' + dataset_name + '/accuracy-linear-' + layer_name + '.csv','w') as file:
-		# file.write('# <cost>, <accuracy score vector>\n')
-		for i in range(11):
-			print(i) # <<<<<
-			cost = 1 << i # penalty
-			clf = svm.SVC(kernel = 'linear', C = cost)
-			scores = cross_val_score(clf, values, classes, cv = 10)
+			# saves the outputs all the layers, except for the input and prediction layers
+			for i in range(len(layers_names)):
+				o2f.save_data('outputs/' + dataset_name +'/' + layers_names[i] +'.txt',
+					imgs_names, layers_outputs[i], imgs_classes, append = True) # [0] <<<<<< generalize later  
+
+	print("\n\n\n\nExecution time: %s seconds.\n\n\n\n" % (time.time() - start_time))
+
+def main1():
+	np.random.seed(1) # a fixed seed guarantees results reproducibility 
+	start_time = time.time()
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
+	datasets_path = '/home/DADOS1/esouza/Datasets/classified/'
+	# datasets_names = ['17flowers', 'coil-20', 'corel-1000',  'CUB_200_2011', 'tropical_fruits1400']
+	datasets_names = ['corel-1000']
+	for dataset_name in datasets_names: # <<<<<< temporary
+		preprocessed_imgs, imgs_names, imgs_classes = o2f.batch_preprocessing(datasets_path, dataset_name)
+		layers_outputs = o2f.get_layers_outputs(cnn, layers_names, preprocessed_imgs) 
+
+		# saves the outputs all the layers, except for the input and prediction layers
+		for i in range(len(layers_names)):
+			o2f.save_data('outputs/' + dataset_name +'/' + layers_names[i] +'.txt',
+				imgs_names, layers_outputs[i], imgs_classes) # [0] <<<<<< generalize later  
+
+	print("\n\n\n\nExecution time: %s seconds.\n\n\n\n" % (time.time() - start_time))
+
+def main2(): 
+	start_time = time.time()
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
+	datasets_names = ['CUB_200_2011']
+	for dataset_name in datasets_names:
+		print('-------')
+		print('dataset = ' + dataset_name)
+		for layer_name in layers_names:
+			print('- layer = ' + layer_name) 
+			print('linear')
+			svm_tests.test_linear_SVC_params(dataset_name, layer_name)
+			print('rbf')
+			svm_tests.test_rbf_SVC_params(dataset_name, layer_name, 1)
+			print('poly')
+			svm_tests.test_poly_SVC_params(dataset_name, layer_name, 1)
+
+	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))
+
+def  main3():
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if layer.name[-4:] != 'pool'] # << excludes the first and last layers(input and predictions)
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	for dataset_name in datasets_names:
+		for layer_name in layers_names:
+			boxplot.plot_svm_performance(dataset_name, layer_name, show = False)
+
+def  main4():
+	cnn = VGG16(weights='imagenet')
+	layers_names = [layer.name for layer in cnn.layers[-8:-1] if (layer.name[-4:] != 'pool') and (layer.name != 'flatten')]
+	datasets_names = ['17flowers', 'coil-20', 'corel-1000', 'tropical_fruits1400']
+	for dataset_name in datasets_names:
+			boxplot.plot_svm_performance_per_dataset(dataset_name, layers_names, show = False)
+
+def main5():
+	datasets_names = ['tropical_fruits1400']
+
+	for dataset_name in datasets_names:	
+		layer_name = 'block5_conv1'
+		names, values, classes = o2f.load_data('outputs/' + dataset_name + '/' + layer_name + '.txt', " ")
+		tsne_data = dim_reduction.load_2d_data(dataset_name, layer_name)
+		print(names.shape)
+		print('tsne_data.shape = ', end=' ')
+		print(tsne_data.shape)
+		print('classes = ', end=' ')
+		print(classes)
+		values_train, values_test, classes_train, classes_test = train_test_split(tsne_data, classes, test_size=0.9, random_state=0)
+		
+		with open('t-sne_performance/' + dataset_name + '-block5_conv1.csv','w') as file:
+			clf = svm.SVC(kernel = 'linear') # uses default cost = 1.0 and linear kernel because it was the one that performed better in previous tests
+			scores = cross_val_score(clf, tsne_data, classes, cv = 10)
 			scores_str = ",".join(str(i) for i in scores)
-			# file.write(str(cost) + ',' + scores_str + '\n')
-			# ====================================
-		# 	plot_linear(clf, values, classes, False, i)
-		# plt.show() # it's needed once 'show' is set to False in plot_linear <<<<
+			file.write(scores_str + '\n') # previously str(cost) + ','
 
-'''
-def plot_linear(clf, X, Y, show, fignum): # !!! ignore for now !!!
-	clf.fit(X, Y)
-
-	# get the separating hyperplane
-	w = clf.coef_[0]
-	a = -w[0] / w[1]
-	xx = np.linspace(-5, 5)
-	yy = a * xx - (clf.intercept_[0]) / w[1]
-
-	# plot the parallels to the separating hyperplane that pass through the
-	# support vectors (margin away from hyperplane in direction
-	# perpendicular to hyperplane). This is sqrt(1+a^2) away vertically in
-	# 2-d.
-	margin = 1 / np.sqrt(np.sum(clf.coef_ ** 2))
-	yy_down = yy - np.sqrt(1 + a ** 2) * margin
-	yy_up = yy + np.sqrt(1 + a ** 2) * margin
-
-	# plot the line, the points, and the nearest vectors to the plane
-	plt.figure(fignum, figsize=(4, 3))
-	plt.clf()
-	plt.plot(xx, yy, 'k-')
-	plt.plot(xx, yy_down, 'k--')
-	plt.plot(xx, yy_up, 'k--')
-
-	plt.scatter(clf.support_vectors_[:, 0], clf.support_vectors_[:, 1], s=80,
-				facecolors='none', zorder=10, edgecolors='k')
-	plt.scatter(X[:, 0], X[:, 1], c=Y, zorder=10, cmap=plt.cm.Paired,
-				edgecolors='k')
-
-	plt.axis('tight')
-	x_min = -4.8
-	x_max = 4.2
-	y_min = -6
-	y_max = 6
-
-	XX, YY = np.mgrid[x_min:x_max:200j, y_min:y_max:200j]
-	Z = clf.predict(np.c_[XX.ravel(), YY.ravel()])
-
-	# Put the result into a color plot
-	Z = Z.reshape(XX.shape)
-	plt.figure(fignum, figsize=(4, 3))
-	plt.pcolormesh(XX, YY, Z, cmap=plt.cm.Paired)
-
-	plt.xlim(x_min, x_max)
-	plt.ylim(y_min, y_max)
-
-	plt.xticks(())
-	plt.yticks(())
-	if(show):
-		plt.show()
-'''
-
-def test_poly_SVC_params(dataset_name, layer_name, cost):
-	names, values, classes = o2f.load_data('outputs/' + dataset_name + '/' + layer_name + '.txt', " ")
-	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
-	print('saving poly results...') 
-	with open('svm_performance/' + dataset_name + '/accuracy-poly-' + layer_name + '.csv','w') as file:
-		# file.write('# <degree>, <accuracy score vector>\n')
-		for deg in range(2,8):
-			clf = svm.SVC(kernel = 'poly', C = cost, degree = deg)
-			scores = cross_val_score(clf, values, classes, cv = 10)
-			scores_str = ",".join(str(i) for i in scores)
-			file.write(str(deg) + ',' + scores_str + '\n')
-
-def test_rbf_SVC_params(dataset_name, layer_name, cost):
-	names, values, classes = o2f.load_data('outputs/' + dataset_name + '/' + layer_name + '.txt', " ")
-	values_train, values_test, classes_train, classes_test = train_test_split(values, classes, test_size=0.9, random_state=0)
-
-	print('saving rbf results...') 
-	with open('svm_performance/' + dataset_name + '/accuracy-rbf-' + layer_name + '.csv','w') as file:
-		# file.write('# <gamma>, <accuracy score vector>\n')
-		for i in range(9):
-			g = (1<<i)/(4*values.shape[1])
-			clf = svm.SVC(kernel = 'rbf', C = cost, gamma = g)
-			scores = cross_val_score(clf, values, classes, cv = 10)
-			scores_str = ",".join(str(i) for i in scores)
-			file.write(str(g) + ',' + scores_str + '\n')
+	print("\n\nExecution time: %s seconds.\n\n" % (time.time() - start_time))
 
 
-######################################################################################	
+if __name__ == '__main__':
+	print("\n\n\n\nStarting...\n\n\n\n")
+	
+	main5()
+
+
